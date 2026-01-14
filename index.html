@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#fafafa">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500;600;700&family=Frank+Ruhl+Libre:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Applikatzir</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Hebrew', 'Arial Hebrew', sans-serif;
+            background: linear-gradient(to bottom, #fffbf7 0%, #fafafa 100%);
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            color: #1a1a1a;
+            overflow-x: hidden;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            flex: 1;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 20px 20px;
+            direction: ltr;
+        }
+
+        .headline-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .flower-decoration {
+            font-size: 1.5rem;
+            opacity: 0.6;
+            filter: grayscale(30%);
+            animation: gentleFloat 3s ease-in-out infinite;
+        }
+
+        .flower-decoration:first-child {
+            animation-delay: 0s;
+        }
+
+        .flower-decoration:last-child {
+            animation-delay: 1.5s;
+        }
+
+        @keyframes gentleFloat {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-5px) rotate(5deg);
+            }
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 400;
+            font-size: 48px;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: #7a7a7a;
+            text-align: center;
+            margin: 0;
+        }
+
+        .subheadline {
+            font-family: 'Playfair Display', serif;
+            font-weight: 400;
+            font-size: 16px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #9a9a9a;
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .date-subheadline {
+            font-family: 'Playfair Display', serif;
+            font-weight: 400;
+            font-size: 16px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #9a9a9a;
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .photo-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .couple-photo {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            max-height: 500px;
+            object-fit: contain;
+            border-radius: 0;
+            display: block;
+            box-shadow: none;
+            border: none;
+            background: transparent;
+            transition: opacity 0.3s ease;
+        }
+
+        .couple-photo:hover {
+            opacity: 0.95;
+        }
+
+        .photo-placeholder {
+            width: 100%;
+            max-width: 500px;
+            height: 400px;
+            margin: 0 auto;
+            border-radius: 0;
+            background: linear-gradient(135deg, #f5e6d3 0%, #faf0e6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 0.9rem;
+            border: none;
+            box-shadow: none;
+        }
+
+        .schedule-photo-wrapper {
+            width: 100%;
+            max-width: 500px;
+            margin: 40px auto 20px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .schedule-photo {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            max-height: 600px;
+            object-fit: contain;
+            border-radius: 0;
+            display: block;
+        }
+
+        .scroll-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.6;
+            animation: gentleBounce 2s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 100;
+            transition: opacity 0.3s ease;
+        }
+
+        .scroll-indicator.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .scroll-arrow {
+            font-size: 2.5rem;
+            color: #9a9a9a;
+            filter: grayscale(100%);
+        }
+
+        @keyframes gentleBounce {
+            0%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            50% {
+                transform: translateX(-50%) translateY(10px);
+            }
+        }
+
+        .links-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 0 10px;
+            align-items: center;
+        }
+
+        .link-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            text-decoration: none;
+            color: #1a1a1a;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .link-card:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .link-card:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .link-content {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            text-align: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .link-title {
+            font-family: 'Narkisim', 'Frank Ruhl Libre', serif;
+            letter-spacing: 0.08em;
+            direction: rtl;
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #1a1a1a;
+            margin-bottom: 0;
+        }
+
+        .link-info {
+            font-family: 'Narkisim', 'Frank Ruhl Libre', serif;
+            letter-spacing: 0.08em;
+            direction: rtl;
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .link-icon {
+            font-size: 2.5rem;
+            filter: grayscale(20%);
+            opacity: 0.85;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .link-card:hover .link-icon {
+            transform: scale(1.1);
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px 20px;
+            font-size: 0.75rem;
+            color: #999;
+            letter-spacing: 0.5px;
+            direction: ltr;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            header {
+                padding: 20px 15px 15px;
+            }
+
+            h1 {
+                font-size: 32px;
+                letter-spacing: 0.25em;
+            }
+
+            .flower-decoration {
+                font-size: 1.2rem;
+            }
+
+            .headline-wrapper {
+                gap: 10px;
+            }
+
+            .subheadline {
+                font-size: 14px;
+                letter-spacing: 0.3em;
+            }
+
+            .date-subheadline {
+                font-size: 14px;
+                letter-spacing: 0.3em;
+            }
+
+            .photo-wrapper {
+                padding: 10px;
+                max-width: 100%;
+            }
+
+            .couple-photo {
+                max-height: 350px;
+            }
+
+            .photo-placeholder {
+                max-width: 100%;
+                height: 300px;
+            }
+
+            .schedule-photo-wrapper {
+                margin: 30px auto 15px;
+            }
+
+            .schedule-photo {
+                max-height: 400px;
+            }
+
+            .scroll-indicator {
+                bottom: 20px;
+            }
+
+            .scroll-arrow {
+                font-size: 2rem;
+            }
+
+            .links-container {
+                padding: 0;
+                gap: 15px;
+            }
+
+            .link-card {
+                padding: 18px 15px;
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+                max-width: 350px;
+            }
+
+            .link-content {
+                width: 100%;
+                align-items: center;
+            }
+
+            .link-title {
+                font-size: 1.1rem;
+            }
+
+            .link-info {
+                font-size: 0.85rem;
+            }
+
+            .link-icon {
+                font-size: 2rem;
+            }
+
+            footer {
+                padding: 20px 15px 15px;
+            }
+        }
+
+        /* Extra small phones */
+        @media (max-width: 360px) {
+            h1 {
+                font-size: 28px;
+                letter-spacing: 0.25em;
+            }
+
+            .flower-decoration {
+                font-size: 1rem;
+            }
+
+            .headline-wrapper {
+                gap: 8px;
+            }
+        }
+
+        /* Prevent text selection on tap */
+        .link-card {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            user-select: none;
+        }
+
+        /* Smooth animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .photo-wrapper {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .couple-photo,
+        .photo-placeholder {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .link-card {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .link-card:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .link-card:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        .link-card:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="headline-wrapper">
+                <span class="flower-decoration">🌸</span>
+                <h1>Gal & Rotem</h1>
+                <span class="flower-decoration">🌸</span>
+            </div>
+            <p class="subheadline">Celebrating Love</p>
+            <p class="date-subheadline">10.03.2026</p>
+        </header>
+
+        <!-- Photo will be loaded from couple-photo.jpg file -->
+        <div class="photo-wrapper">
+            <img src="couple-photo.jpg" alt="Gal and Rotem" class="couple-photo" id="couple-photo" onerror="this.style.display='none'; document.getElementById('photo-placeholder').style.display='flex';">
+            <div class="photo-placeholder" id="photo-placeholder" style="display: none;">
+                הוסף את התמונה שלך כאן
+            </div>
+        </div>
+
+        <div class="links-container">
+            <a href="https://photos.google.com" class="link-card" target="_blank" rel="noopener noreferrer">
+                <div class="link-icon">📸</div>
+                <div class="link-content">
+                    <div class="link-title">אלבום גוגל תמונות</div>
+                    <div class="link-info">מוזמנים להעלות את התמונות שצילמתם מהערב😊</div>
+                </div>
+            </a>
+
+            <a href="https://paybox.co.il" class="link-card" target="_blank" rel="noopener noreferrer">
+                <div class="link-icon">💳</div>
+                <div class="link-content">
+                    <div class="link-title">קבוצת Paybox</div>
+                    <div class="link-info">מתנות ללא עמלה</div>
+                </div>
+            </a>
+
+            <a href="#" class="link-card" id="arcade-link">
+                <div class="link-icon">🎮</div>
+                <div class="link-content">
+                    <div class="link-title">שאלון</div>
+                    <div class="link-info">מה אתה יותר - גל או רותם?</div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Schedule photo -->
+        <div class="schedule-photo-wrapper">
+            <img src="Schedule.jpg" alt="Schedule" class="schedule-photo">
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Applikatzir inc. All rights reserved.</p>
+    </footer>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator" id="scroll-indicator">
+        <div class="scroll-arrow">↓</div>
+    </div>
+
+    <script>
+        // Add touch feedback
+        document.querySelectorAll('.link-card').forEach(card => {
+            card.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+            
+            card.addEventListener('touchend', function() {
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
+
+        // Handle Arcade link (you can update this URL)
+        document.getElementById('arcade-link').addEventListener('click', function(e) {
+            // Update this URL to your actual arcade link
+            // For now, it prevents default navigation
+            // e.preventDefault();
+            // alert('Arcade link - Update this URL in the code');
+        });
+
+        // Show/hide scroll indicator based on scroll position
+        function updateScrollIndicator() {
+            const scrollIndicator = document.getElementById('scroll-indicator');
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // Show indicator if user hasn't scrolled near the bottom (within 100px)
+            // Hide if they've seen most of the page
+            const threshold = 100;
+            const isNearBottom = (scrollTop + windowHeight) >= (documentHeight - threshold);
+            
+            if (isNearBottom) {
+                scrollIndicator.classList.add('hidden');
+            } else {
+                scrollIndicator.classList.remove('hidden');
+            }
+        }
+
+        // Check on scroll and on load
+        window.addEventListener('scroll', updateScrollIndicator);
+        window.addEventListener('resize', updateScrollIndicator);
+        updateScrollIndicator(); // Initial check
+    </script>
+</body>
+</html>
