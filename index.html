@@ -515,25 +515,19 @@
                 </div>
             </a>
 
-            <a href="#" class="link-card"
-                id="arcade-link"
-                rel="noopener noreferrer"
-                onclick="
-                    try {
-                    fetch('https://formspree.io/f/mzddranw', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                        page: window.location.href,
-                        referrer: document.referrer,
-                        userAgent: navigator.userAgent,
-                        time: new Date().toISOString(),
-                        cta: 'arcade-link'
-                        }),
-                        keepalive: true
-                    });
-                    } catch (e) {}
-                ">
+            <a href="#"
+            class="link-card"
+            rel="noopener noreferrer"
+            onclick="
+                try {
+                navigator.sendBeacon(
+                    'https://formspree.io/f/mzddranw',
+                    JSON.stringify({
+                    page: window.location.href
+                    })
+                );
+                } catch (e) {}
+            ">
                 <div class="link-icon">🎮</div>
                 <div class="link-content">
                     <div class="link-title">משחק</div>
