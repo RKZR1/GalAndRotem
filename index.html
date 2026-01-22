@@ -38,6 +38,83 @@
             direction: rtl;
         }
 
+        /* Intro video overlay (mobile-friendly) */
+        body.is-intro-playing {
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        .intro-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .intro-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .intro-skip {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 999px;
+            font-family: 'Assistant', sans-serif;
+            font-size: 14px;
+            letter-spacing: 0.02em;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .intro-overlay.is-hidden {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 400ms ease;
+        }
+
+        .main-content {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+
+        body.is-intro-done .main-content {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 600ms ease, transform 600ms ease;
+        }
+
+        /* Gentle “breathing” motion after intro (subtle) */
+        body.is-intro-done .container {
+            animation: breathe 6s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .intro-overlay,
+            .intro-overlay.is-hidden,
+            body.is-intro-done .main-content,
+            body.is-intro-done .container {
+                animation: none !important;
+                transition: none !important;
+                transform: none !important;
+            }
+        }
+
         .container {
             max-width: 600px;
             width: 100%;
@@ -481,6 +558,22 @@
     </style>
 </head>
 <body>
+    <!-- Intro video (place envelope.mp4 next to index.html) -->
+    <div class="intro-overlay" id="intro-overlay" aria-hidden="true">
+        <video
+            class="intro-video"
+            id="intro-video"
+            src="envelope.mp4"
+            autoplay
+            muted
+            playsinline
+            webkit-playsinline
+            preload="auto"
+        ></video>
+        <button class="intro-skip" id="intro-skip" type="button">דלג</button>
+    </div>
+
+    <div class="main-content" id="main-content">
     <div class="container">
         <header>
             <div class="headline-wrapper">
@@ -550,8 +643,66 @@
     <div class="scroll-indicator" id="scroll-indicator">
         <div class="scroll-arrow">↓</div>
     </div>
+    </div>
 
     <script>
+        // Intro video logic
+        (function initIntroVideo() {
+            const overlay = document.getElementById('intro-overlay');
+            const video = document.getElementById('intro-video');
+            const skip = document.getElementById('intro-skip');
+
+            if (!overlay || !video || !skip) {
+                document.body.classList.add('is-intro-done');
+                return;
+            }
+
+            document.body.classList.add('is-intro-playing');
+
+            const finishIntro = () => {
+                document.body.classList.remove('is-intro-playing');
+                document.body.classList.add('is-intro-done');
+                overlay.classList.add('is-hidden');
+                window.setTimeout(() => overlay.remove(), 450);
+            };
+
+            // If video can't play on some mobile browsers, allow tap-to-skip immediately.
+            skip.addEventListener('click', finishIntro);
+
+            // End normally when video finishes
+            video.addEventListener('ended', finishIntro);
+            video.addEventListener('error', () => {
+                // If video fails to load, show website immediately
+                console.log('Video failed to load, showing website');
+                finishIntro();
+            });
+            
+            // Fallback: if video doesn't start playing within 3 seconds, show website
+            const loadTimeout = setTimeout(() => {
+                if (video.readyState < 2) { // HAVE_CURRENT_DATA
+                    console.log('Video taking too long to load, showing website');
+                    finishIntro();
+                }
+            }, 3000);
+            
+            video.addEventListener('loadeddata', () => {
+                clearTimeout(loadTimeout);
+            });
+
+            // Safety timeout (in case 'ended' doesn't fire)
+            window.setTimeout(() => {
+                if (!document.body.classList.contains('is-intro-done')) finishIntro();
+            }, 9000);
+
+            // Try to play (some devices require a user gesture; if it fails, we keep the overlay + skip)
+            const playPromise = video.play();
+            if (playPromise && typeof playPromise.catch === 'function') {
+                playPromise.catch(() => {
+                    // leave overlay visible; user can tap "דלג"
+                });
+            }
+        })();
+
         // Add touch feedback
         document.querySelectorAll('.link-card').forEach(card => {
             card.addEventListener('touchstart', function() {
