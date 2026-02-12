@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>G&R 404</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Assistant:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Inherited Styles from Gal & Rotem Main Page */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Assistant', sans-serif;
+            background: linear-gradient(to bottom, #fffbf7 0%, #fafafa 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+            color: #1a1a1a;
+            direction: rtl;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .error-code {
+            font-family: 'Playfair Display', serif;
+            font-size: 80px;
+            color: #d1d1d1;
+            line-height: 1;
+            margin-bottom: -10px;
+        }
+
+        .flower-decoration {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 5px;
+            animation: gentleFloat 3s ease-in-out infinite;
+        }
+
+        h1 {
+            font-family: 'Gabriola', serif;
+            font-weight: 400;
+            font-size: 32px;
+            color: #7a7a7a;
+        }
+
+        /* Video container styling */
+        .video-wrapper {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            line-height: 0;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .loop-video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .home-link {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            text-decoration: none;
+            color: #1a1a1a;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            max-width: 300px;
+            margin: 0 auto;
+            font-family: 'Assistant', sans-serif;
+        }
+
+        .home-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .home-link:active {
+            transform: scale(0.98);
+        }
+
+        @keyframes gentleFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            padding: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="error-code">404</div>
+        <span class="flower-decoration">✨</span>
+        
+        <h1>אופס, הלכתם קצת לאיבוד?</h1>
+        <a href="https://galandrotem.com" class="home-link">
+            <strong>חזרה לחגיגה שלנו🍷</strong>
+        </a>
+        <div class="video-wrapper">
+            <video class="loop-video" autoplay loop muted playsinline>
+                <source src="vid.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+
+        
+    </div>
+
+    <footer>
+        <p>.Applikatzir inc. All rights reserved &copy</p>
+    </footer>
+
+</body>
+</html>
