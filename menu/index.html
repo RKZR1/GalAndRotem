@@ -7,137 +7,155 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Assistant:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
-        /* Reusing your exact main page styles */
+        /* 1. MATCHING YOUR MAIN STYLE */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Assistant', sans-serif;
             background: linear-gradient(to bottom, #fffbf7 0%, #fafafa 100%);
             min-height: 100vh;
+            overflow: hidden; /* Stops background from scrolling */
             display: flex;
-            flex-direction: column;
-            padding: 20px;
-            color: #1a1a1a;
-            direction: rtl;
-        }
-
-        .container {
-            max-width: 600px;
-            width: 100%;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            flex: 1;
-        }
-
-        header {
-            text-align: center;
-            padding: 20px 20px 10px;
-        }
-
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-weight: 400;
-            font-size: 32px;
-            letter-spacing: 0.1em;
-            color: #7a7a7a;
-            margin-bottom: 5px;
-        }
-
-        .subheadline {
-            font-family: 'Assistant', sans-serif;
-            font-size: 16px;
-            letter-spacing: 0.1em;
-            color: #9a9a9a;
-            text-transform: uppercase;
-        }
-
-        /* Menu Image Styling */
-        .menu-wrapper {
-            width: 100%;
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 10px;
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        .menu-photo {
-            width: 100%;
-            height: auto;
-            display: block;
-            border-radius: 8px;
-        }
-
-        /* Back Button - Styled like your Link Cards */
-        .back-card {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 15px;
-            text-decoration: none;
-            color: #1a1a1a;
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-            display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-            margin-bottom: 40px;
-            animation: fadeIn 0.5s ease-out 0.3s both;
+            align-items: center;
         }
 
-        .back-card:active {
-            transform: scale(0.98);
+        /* 2. THE BLURRED BACKGROUND (Your site's look) */
+        #page-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            filter: blur(10px);
+            -webkit-filter: blur(10px);
+            opacity: 0.5;
+            z-index: 1;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 50px;
         }
 
-        .back-icon { font-size: 1.2rem; }
-        .back-text {  
+        /* Re-creating your H1 style for the backdrop */
+        .backdrop-h1 {
+            font-family: 'Gabriola', serif;
+            font-size: 48px;
+            letter-spacing: 0.25em;
+            color: #7a7a7a;
+            margin-bottom: 10px;
+        }
 
-        font-family: 'Assistant', sans-serif;
-            letter-spacing: 0.08em;
-            direction: rtl;
-            font-size: 1.2rem;
-            font-weight: 500;
-            color: #1a1a1a;
-            margin-bottom: 0;}
+        /* 3. THE SHARP MENU CARD (The focus) */
+        .menu-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 450px;
+            background: #ffffff;
+            padding: 10px;
+            border-radius: 24px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+            animation: slideUp 0.5s ease-out;
+            text-align: center;
+        }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
+        .menu-img {
+            width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 16px;
+            display: block;
+        }
+
+        /* 4. THE X BUTTON & TOOLTIP */
+        .close-btn {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            width: 42px;
+            height: 42px;
+            background: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            font-family: sans-serif;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 100;
+            transition: transform 0.2s;
+        }
+
+        /* Hover Popup Tooltip */
+        .close-btn::after {
+            content: "חזרה לדף הבית 🏠";
+            position: absolute;
+            bottom: 50px;
+            right: 0;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: 'Assistant', sans-serif;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .close-btn:hover::after {
+            opacity: 1;
+        }
+
+        .close-btn:active { transform: scale(0.9); }
+
+        /* Bottom Clickable Text */
+        .return-text {
+            display: block;
+            margin-top: 15px;
+            color: #888;
+            font-family: 'Assistant', sans-serif;
+            text-decoration: none;
+            font-size: 15px;
+            padding-bottom: 5px;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 0.75rem;
-            color: #999;
-        }
+        /* Flower animation matching your main site */
+        .flower { font-size: 2rem; margin-bottom: 10px; opacity: 0.6; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        
-        <div class="menu-wrapper">
-            <img src="menu.jpg" alt="Menu" class="menu-photo">
-        </div>
-
-        <a href="https://galandrotem.com" class="back-card">
-            <span class="back-text">חזרה לדף הבית 🏠</span>
-        </a>
+    <div id="page-backdrop">
+        <div class="flower">✨</div>
+        <h1 class="backdrop-h1">Gal & Rotem</h1>
+        <div style="font-family: 'Playfair Display'; color: #9a9a9a; letter-spacing: 0.3em; text-transform: uppercase;">Celebrating Love</div>
+        <div style="margin-top: 40px; width: 250px; height: 60px; background: white; border-radius: 16px; border: 1px solid #eee;"></div>
+        <div style="margin-top: 20px; width: 250px; height: 60px; background: white; border-radius: 16px; border: 1px solid #eee;"></div>
     </div>
 
-    <footer>
-        <p>.Applikatzir inc. All rights reserved &copy</p>
-    </footer>
+    <div class="menu-wrapper">
+        <a href="https://galandrotem.com" class="close-btn">✕</a>
+        
+        <img src="menu.jpg" alt="Our Menu" class="menu-img">
+        
+        <a href="https://galandrotem.com" class="return-text">
+            חזרה לדף הבית 🏠
+                    </a>
+    </div>
 
 </body>
 </html>
