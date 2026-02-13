@@ -38,6 +38,46 @@
             direction: rtl;
         }
 
+                /* Container for the hidden links */
+        .sub-links-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 0;
+            opacity: 0;
+        }
+
+        /* When the parent is active */
+        .link-card.active .sub-links-container {
+            max-height: 200px; /* Adjust based on number of links */
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            opacity: 1;
+        }
+
+        /* Style for the individual sub-buttons */
+        .sub-link-item {
+            background: #fdfdfd;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            padding: 12px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #1a1a1a;
+            font-family: 'Assistant', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .sub-link-item:active {
+            background: #f0f0f0;
+        }
+
         .container {
             max-width: 600px;
             width: 100%;
@@ -507,6 +547,19 @@
                 </div>
             </a>
 
+            <div class="link-card" id="paybox-trigger" style="cursor: pointer;">
+                <div class="link-icon">💳</div>
+                <div class="link-content">
+                    <div class="link-title">מתנות ללא עמלה</div>
+                    <!--  <div class="link-info">מתנות ללא עמלה</div> -->
+                </div>
+                <div id="paybox-sublinks" class="sub-links-container">
+                    <a href="https://links.payboxapp.com/v3Hi0qH3XUb" class="sub-link-item" target="_blank">Paybox 1</a>
+                    <a href="#" class="sub-link-item" target="_blank">Paybox 2</a>
+                </div>
+            </div>
+
+            <!--  
             <a href="https://links.payboxapp.com/v3Hi0qH3XUb" class="link-card" target="_blank" rel="noopener noreferrer">
                 <div class="link-icon">💳</div>
                 <div class="link-content">
@@ -514,6 +567,7 @@
                     <div class="link-info">מתנות ללא עמלה</div>
                 </div>
             </a>
+           -->
 
             <a href="#"
             class="link-card"
@@ -550,6 +604,21 @@
     </div>
 
     <script>
+
+        document.getElementById('paybox-trigger').addEventListener('click', function(e) {
+            // Prevent the click from triggering if they click the actual sub-links
+            if (e.target.closest('.sub-link-item')) return;
+
+            this.classList.toggle('active');
+            
+            // Optional: Scroll slightly to make sure the links are visible
+            if (this.classList.contains('active')) {
+                setTimeout(() => {
+                    this.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 300);
+            }
+        });
+
         // Add touch feedback
         document.querySelectorAll('.link-card').forEach(card => {
             card.addEventListener('touchstart', function() {
