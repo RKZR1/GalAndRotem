@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>החתונה של רותם וגל | המשחק</title>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #C5A059; --dark-green: #1B3022; --soft-white: #FDFBF7; --accent: #f4f7f4; }
+        body { font-family: 'Assistant', sans-serif; background-color: var(--soft-white); color: var(--dark-green); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background: white; width: 90%; max-width: 450px; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; border: 1px solid #eee; }
+        h1 { font-weight: 700; margin-top: 0; color: var(--dark-green); }
+        input { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 15px; font-size: 18px; box-sizing: border-box; outline: none; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
+        .btn-main { background-color: var(--dark-green); color: white; }
+        .btn-option { background-color: white; border: 2px solid var(--dark-green); color: var(--dark-green); }
+        .btn-secondary { background-color: #f0f0f0; color: #444; font-size: 16px; }
+        .btn-option:active { background-color: var(--dark-green); color: white; }
+        .hidden { display: none; }
+        .q-img { width: 100%; height: 220px; object-fit: cover; border-radius: 15px; margin-bottom: 20px; background: #eee; }
+        .score-box { display: flex; gap: 10px; margin-top: 20px; }
+        .score-col { flex: 1; padding: 10px; background: var(--accent); border-radius: 12px; font-size: 14px; min-height: 250px; }
+        .score-row { display: flex; justify-content: space-between; border-bottom: 1px solid #d1e0d2; padding: 8px 0; font-size: 14px; }
+        #result-display { font-size: 28px; font-weight: 700; margin: 25px 0; line-height: 1.4; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--dark-green); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 10px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="screen-welcome">
+        <h1>רותם & גל</h1>
+        <p>למי מהם אתם יותר דומים?</p>
+        <input type="text" id="username" placeholder="איך קוראים לכם?">
+        <button class="btn-main" onclick="startQuiz()">בואו נשחק!</button>
+        <button class="btn-secondary" onclick="fetchScoreboard(true)">צפייה בלוח התוצאות 🏆</button>
+    </div>
+
+    <div id="screen-quiz" class="hidden">
+        <div id="progress" style="font-size: 13px; margin-bottom: 10px; color: #666;"></div>
+        <img id="q-image" src="" class="q-img">
+        <h2 id="q-text" style="font-size: 20px; margin-bottom: 20px;"></h2>
+        <div id="options">
+            <button class="btn-option" id="btn-a" onclick="submitAnswer('A')"></button>
+            <button class="btn-option" id="btn-b" onclick="submitAnswer('B')"></button>
+        </div>
+    </div>
+
+    <div id="screen-result" class="hidden">
+        <h1>התוצאה שלכם:</h1>
+        <div id="result-display"></div>
+        <button class="btn-main" id="save-btn" onclick="saveResult()">הצטרפו ללוח התוצאות 🏆</button>
+        <div id="loading-spinner" class="hidden"><div class="loader"></div></div>
+    </div>
+
+    <div id="screen-scores" class="hidden">
+        <h2>לוח התוצאות 🏆</h2>
+        <div class="score-box">
+            <div class="score-col">
+                <strong>צוות רותם 🦁</strong>
+                <div id="list-rotem" style="margin-top:10px;"></div>
+            </div>
+            <div class="score-col">
+                <strong>צוות גל 🦊</strong>
+                <div id="list-gal" style="margin-top:10px;"></div>
+            </div>
+        </div>
+        <button class="btn-option" onclick="location.reload()" style="margin-top:20px;">חזרה למסך הבית</button>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxJh4LDAz16G-uEftVCO3vriiJc2WllrfQL77ctMCcU1jZiATuNIepHD-QWLo5Eta3N/exec';
+
+    const questionsDB = [
+        { text: "הודעות בוואטסאפ:", a: "עונה תוך שנייה", b: "עונה אחרי יומיים", r: "A", g: "B", img: "https://images.unsplash.com/photo-1611746872915-64382b5c76da?w=400" },
+        { text: "סוללה בטלפון:", a: "מטעין ב-80%", b: "חי על ה-1%", r: "B", g: "A", img: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=400" },
+        { text: "אריזה לטיול:", a: "רשימות חודש מראש", b: "דוחס הכל שעה לפני", r: "A", g: "A", img: "https://images.unsplash.com/photo-1553913861-c0fddf2619ee?w=400" },
+        { text: "קפה של בוקר:", a: "נס קפה זריז", b: "טקס הפולים וההקצפה", r: "A", g: "B", img: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400" },
+        { text: "ניווט בחו\"ל:", a: "גוגל מאפס צמוד", b: "איפה שהרגליים ייקחו", r: "A", g: "B", img: "https://images.unsplash.com/photo-1502101872923-d48509bff386?w=400" },
+        { text: "במסיבה:", a: "במרכז הרחבה", b: "בצד עם דרינק ושיחה", r: "B", g: "A", img: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400" },
+        { text: "סדר יום:", a: "מתקתק משימות", b: "דוחה לרגע האחרון", r: "A", g: "B", img: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=400" },
+        { text: "צילום תמונות:", a: "קליק אחד וזהו", b: "בוק של 50 תמונות", r: "A", g: "B", img: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400" },
+        { text: "אוכל רחוב:", a: "זורם על הכל", b: "בודק 40 ביקורות קודם", r: "A", g: "B", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" },
+        { text: "יציאה מהבית:", a: "בודק 3 פעמים את הגז", b: "יוצא ומתפלל לטוב", r: "B", g: "A", img: "https://images.unsplash.com/photo-1527030280862-64139fba04ca?w=400" }
+    ];
+
+    let currentQ = [];
+    let currentIndex = 0;
+    let rScore = 0;
+    let gScore = 0;
+    let name = "";
+
+    function startQuiz() {
+        name = document.getElementById('username').value.trim();
+        if(!name) return alert("בבקשה הכניסו שם כדי להתחיל");
+        currentQ = questionsDB.sort(() => 0.5 - Math.random()).slice(0, 10);
+        document.getElementById('screen-welcome').classList.add('hidden');
+        document.getElementById('screen-quiz').classList.remove('hidden');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const q = currentQ[currentIndex];
+        document.getElementById('q-text').innerText = q.text;
+        document.getElementById('btn-a').innerText = q.a;
+        document.getElementById('btn-b').innerText = q.b;
+        document.getElementById('q-image').src = q.img;
+        document.getElementById('progress').innerText = `שאלה ${currentIndex + 1} מתוך 10`;
+    }
+
+    function submitAnswer(choice) {
+        const q = currentQ[currentIndex];
+        if(choice === q.r) rScore++;
+        if(choice === q.g) gScore++;
+        currentIndex++;
+        if(currentIndex < 10) loadQuestion();
+        else showFinal();
+    }
+
+    function showFinal() {
+        document.getElementById('screen-quiz').classList.add('hidden');
+        document.getElementById('screen-result').classList.remove('hidden');
+        let rP = Math.round((rScore / (rScore + gScore)) * 100);
+        let gP = 100 - rP;
+        document.getElementById('result-display').innerHTML = 
+            `<span style="color:#2d5a27">${rP}% רותם</span><br><span style="color:#8b0000">${gP}% גל</span>`;
+    }
+
+    async function saveResult() {
+        document.getElementById('save-btn').classList.add('hidden');
+        document.getElementById('loading-spinner').classList.remove('hidden');
+        let rP = Math.round((rScore / (rScore + gScore)) * 100);
+        let gP = 100 - rP;
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ name, rotem: rP, gal: gP })
+            });
+            setTimeout(() => fetchScoreboard(false), 1500);
+        } catch (e) {
+            fetchScoreboard(false);
+        }
+    }
+
+    async function fetchScoreboard(fromWelcome = false) {
+        if(fromWelcome) document.getElementById('screen-welcome').classList.add('hidden');
+        document.getElementById('screen-result').classList.add('hidden');
+        document.getElementById('screen-scores').classList.remove('hidden');
+        document.getElementById('list-rotem').innerHTML = "טוען...";
+        document.getElementById('list-gal').innerHTML = "טוען...";
+
+        try {
+            const res = await fetch(SCRIPT_URL);
+            const rawData = await res.json();
+            
+            // עיבוד נתונים: הפיכה למספרים שלמים וטיפול במקרים של 0.55 -> 55
+            const data = rawData.map(u => {
+                let r = parseFloat(u.rotem);
+                let g = parseFloat(u.gal);
+                if (r > 0 && r < 1) r = r * 100;
+                if (g > 0 && g < 1) g = g * 100;
+                return { 
+                    name: u.name, 
+                    rotem: Math.round(r) || 0, 
+                    gal: Math.round(g) || 0 
+                };
+            });
+
+            const rList = data.filter(u => u.rotem >= u.gal).sort((a,b) => b.rotem - a.rotem);
+            const gList = data.filter(u => u.gal > u.rotem).sort((a,b) => b.gal - a.gal);
+
+            document.getElementById('list-rotem').innerHTML = rList.map(u => 
+                `<div class="score-row"><span>${u.name}</span><strong>${u.rotem}%</strong></div>`).join('');
+            document.getElementById('list-gal').innerHTML = gList.map(u => 
+                `<div class="score-row"><span>${u.name}</span><strong>${u.gal}%</strong></div>`).join('');
+        } catch (e) {
+            document.getElementById('list-rotem').innerHTML = "שגיאה בטעינה";
+        }
+    }
+</script>
+</body>
+</html>
