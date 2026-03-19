@@ -38,12 +38,12 @@
             border: 1px solid rgba(255, 255, 255, 0.7);
         }
 
-        .screen { animation: screenFadeIn 0.6s ease-out forwards; }
-        @keyframes screenFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .screen { animation: screenFadeIn 0.5s ease-out forwards; }
+        @keyframes screenFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .hidden { display: none; }
 
         .game-logo { margin-bottom: 20px; }
-        h1 { font-weight: 700; font-size: 2.2rem; margin: 10px 0 35px; letter-spacing: -1.5px; }
+        h1 { font-weight: 700; font-size: 2.2rem; margin: 10px 0 30px; letter-spacing: -1.5px; }
 
         input {
             width: 100%; padding: 18px; border: 1px solid #e0e0e0;
@@ -152,36 +152,45 @@
 
     let currentQ = [], currentIndex = 0, rScore = 0, gScore = 0, name = "";
     let cachedData = JSON.parse(localStorage.getItem('wedding_scores')) || [];
-    let isFetching = false;
+    let fetchPromise = null;
 
-    // סנכרון נתונים מהשרת
-    async function syncData() {
-        if (isFetching) return;
-        isFetching = true;
-        try {
-            const res = await fetch(SCRIPT_URL);
-            const data = await res.json();
-            cachedData = data.map(u => {
-                let r = parseFloat(u.rotem), g = parseFloat(u.gal);
-                if (r > 0 && r < 1) { r *= 100; g *= 100; }
-                return { name: u.name, rotem: Math.round(r) || 0, gal: Math.round(g) || 0 };
+    // פונקציית סנכרון חכמה שמחזירה Promise כדי שאחרים יוכלו "לחכות" לה
+    function syncData() {
+        if (fetchPromise) return fetchPromise; // אם כבר יש טעינה באוויר, תחזיר אותה
+
+        fetchPromise = fetch(SCRIPT_URL)
+            .then(res => res.json())
+            .then(data => {
+                cachedData = data.map(u => {
+                    let r = parseFloat(u.rotem), g = parseFloat(u.gal);
+                    if (r > 0 && r < 1) { r *= 100; g *= 100; }
+                    return { name: u.name, rotem: Math.round(r) || 0, gal: Math.round(g) || 0 };
+                });
+                localStorage.setItem('wedding_scores', JSON.stringify(cachedData));
+                
+                // עדכון הלוח אם הוא פתוח
+                if (!document.getElementById('screen-scores').classList.contains('hidden')) {
+                    renderScores();
+                }
+                fetchPromise = null; // איפוס כדי לאפשר טעינה חדשה בעתיד
+                return cachedData;
+            })
+            .catch(e => {
+                console.log("Sync error");
+                fetchPromise = null;
+                return cachedData;
             });
-            localStorage.setItem('wedding_scores', JSON.stringify(cachedData));
-            
-            // עדכון הלוח אם הוא מוצג כרגע
-            if (!document.getElementById('screen-scores').classList.contains('hidden')) {
-                renderScores();
-            }
-        } catch (e) { console.log("Sync error"); }
-        isFetching = false;
+
+        return fetchPromise;
     }
 
+    // הפעלה ראשונה וסנכרון כל 30 שניות
     syncData();
+    setInterval(syncData, 30000);
 
     function startQuiz() {
         name = document.getElementById('username').value.trim();
         if(!name) return alert("הכניסו שם כדי להתחיל");
-        // איפוס משחק
         currentIndex = 0; rScore = 0; gScore = 0;
         currentQ = [...questionsDB].sort(() => 0.5 - Math.random()).slice(0, 10);
         document.getElementById('screen-welcome').classList.add('hidden');
@@ -214,10 +223,7 @@
         const isRotem = rP >= gP;
         document.getElementById('winner-name').innerText = isRotem ? "רותם" : "גל";
         document.getElementById('winner-note').innerText = isRotem ? "כדאי שתתכוננו, רותם כבר מחכה לכם בבר!" : "גל לגמרי מצאה את החצי השני שלה כאן.";
-        
-        // כפתור השמירה חוזר להיות גלוי
         document.getElementById('save-btn').classList.remove('hidden');
-
         let count = 0;
         const timer = setInterval(() => {
             count++;
@@ -232,28 +238,39 @@
     function saveResult() {
         let rP = Math.round((rScore / (rScore + gScore)) * 100), gP = 100 - rP;
         document.getElementById('save-btn').classList.add('hidden');
-        
-        // הוספה מקומית מיידית לזיכרון
         cachedData.push({ name, rotem: rP, gal: gP });
-        
-        // שליחה שקטה לשרת
         fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ name, rotem: rP, gal: gP }) });
-        
-        // מעבר ללוח תוצאות
         setTimeout(goToScoreboard, 500);
     }
 
-    function goToScoreboard() {
+    // הפונקציה המתוקנת למניעת טעינה אינסופית
+    async function goToScoreboard() {
         document.getElementById('screen-welcome').classList.add('hidden');
         document.getElementById('screen-result').classList.add('hidden');
         
+        // אם יש נתונים (אפילו ישנים מה-Cache), נציג אותם מיד
         if (cachedData.length > 0) {
             document.getElementById('screen-scores').classList.remove('hidden');
             renderScores();
-            syncData(); // תמיד ננסה לרענן ברקע כשאנחנו בלוח
-        } else {
-            document.getElementById('screen-loading').classList.remove('hidden');
+            // וננסה לעדכן ברקע
             syncData(); 
+        } else {
+            // רק אם אין כלום - נציג מסך טעינה
+            document.getElementById('screen-loading').classList.remove('hidden');
+            
+            // הגנה: אם השרת לא עונה תוך 6 שניות, נשחרר את הטעינה
+            const timeout = setTimeout(() => {
+                document.getElementById('screen-loading').classList.add('hidden');
+                document.getElementById('screen-scores').classList.remove('hidden');
+                renderScores();
+            }, 6000);
+
+            await syncData(); // נחכה ל-Promise של הטעינה
+            clearTimeout(timeout);
+            
+            document.getElementById('screen-loading').classList.add('hidden');
+            document.getElementById('screen-scores').classList.remove('hidden');
+            renderScores();
         }
     }
 
@@ -263,11 +280,9 @@
         document.getElementById('list-gal').innerHTML = cachedData.filter(u => u.gal > 50).sort((a,b)=>b.gal-a.gal).map(mapItem).join('');
     }
 
-    // פונקציה חדשה לחזרה למסך הבית בלי רענון דף
     function backToWelcome() {
         document.getElementById('screen-scores').classList.add('hidden');
         document.getElementById('screen-welcome').classList.remove('hidden');
-        // איפוס שדות
         document.getElementById('username').value = "";
     }
 </script>
