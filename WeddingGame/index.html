@@ -3,99 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>החתונה של רותם וגל | המשחק</title>
-    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;700&display=swap" rel="stylesheet">
+    <title>Who Are You More? | Wedding Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --gold: #C5A059; --dark-green: #1B3022; --soft-white: #FDFBF7; --accent: #f4f7f4; }
-        body { font-family: 'Assistant', sans-serif; background-color: var(--soft-white); color: var(--dark-green); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: white; width: 90%; max-width: 450px; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; border: 1px solid #eee; }
-        h1 { font-weight: 700; margin-top: 0; color: var(--dark-green); }
-        input { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 15px; font-size: 18px; box-sizing: border-box; outline: none; }
-        button { width: 100%; padding: 15px; border: none; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
-        .btn-main { background-color: var(--dark-green); color: white; }
-        .btn-option { background-color: white; border: 2px solid var(--dark-green); color: var(--dark-green); }
-        .btn-secondary { background-color: #f0f0f0; color: #444; font-size: 16px; }
-        .btn-option:active { background-color: var(--dark-green); color: white; }
+        :root {
+            --primary: #1B3022; /* ירוק זית כהה יוקרתי */
+            --accent: #C5A059; /* זהב פרימיום */
+            --bg: #fdfbf7; /* צבע פנינה עדין לרקע */
+            --glass: rgba(255, 255, 255, 0.98);
+            --shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+            --shadow-btn: 0 5px 15px rgba(27, 48, 34, 0.1);
+        }
+
+        body {
+            font-family: 'Assistant', sans-serif;
+            background: var(--bg);
+            /* דוגמת רקע עדינה מאוד */
+            background-image: radial-gradient(#e5e1da 0.8px, transparent 0.8px);
+            background-size: 40px 40px;
+            color: var(--primary);
+            margin: 0;
+            display: flex;
+            justify-content: center; align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Container & Glassmorphism */
+        .container {
+            background: var(--glass);
+            width: 92%; max-width: 420px;
+            padding: 50px 30px;
+            border-radius: 35px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            transition: all 0.4s ease;
+        }
+
+        /* Screen Transitions */
+        .screen { animation: screenFadeIn 0.7s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+        @keyframes screenFadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         .hidden { display: none; }
-        .q-img { width: 100%; height: 220px; object-fit: cover; border-radius: 15px; margin-bottom: 20px; background: #eee; }
-        .score-box { display: flex; gap: 10px; margin-top: 20px; }
-        .score-col { flex: 1; padding: 10px; background: var(--accent); border-radius: 12px; font-size: 14px; min-height: 250px; }
-        .score-row { display: flex; justify-content: space-between; border-bottom: 1px solid #d1e0d2; padding: 8px 0; font-size: 14px; }
-        #result-display { font-size: 28px; font-weight: 700; margin: 25px 0; line-height: 1.4; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--dark-green); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 10px auto; }
+
+        /* Welcome Screen (Game Logo) */
+        .game-logo { margin-bottom: 30px; }
+        #screen-welcome h1 { font-weight: 700; font-size: 2.2rem; letter-spacing: -1.5px; margin: 10px 0 35px; color: var(--primary); }
+
+        input {
+            width: 100%; padding: 20px; border: 1px solid #e0e0e0;
+            border-radius: 20px; margin-bottom: 25px;
+            font-size: 18px; box-sizing: border-box; outline: none;
+            transition: border-color 0.3s; background: #fafafa;
+        }
+        input:focus { border-color: var(--primary); }
+
+        button {
+            width: 100%; padding: 19px; border: none;
+            border-radius: 20px; font-size: 18px; font-weight: 600;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 15px; font-family: inherit;
+        }
+
+        .btn-main { background: var(--primary); color: white; box-shadow: var(--shadow-btn); }
+        .btn-main:hover { transform: translateY(-2px); opacity: 0.95; }
+        
+        .btn-outline { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
+        .btn-outline:active { background: #f0f4f0; }
+
+        /* Quiz UI (Untouched) */
+        .progress-bar { height: 4px; background: #f0f0f0; border-radius: 10px; margin-bottom: 25px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.4s ease; }
+        .q-img-wrapper { width: 100%; height: 210px; border-radius: 24px; overflow: hidden; margin-bottom: 25px; background: #eee; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
+        .q-img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Results Screen (Untouched) */
+        #result-display { margin: 20px 0; }
+        .match-label { font-size: 1.2rem; font-weight: 400; color: #666; margin-bottom: 5px; }
+        .match-name { font-size: 3.5rem; font-weight: 800; color: var(--primary); margin: 0; line-height: 1; letter-spacing: -2px; }
+        .match-percent { font-size: 5rem; font-weight: 800; color: var(--accent); margin: 10px 0; display: block; animation: countUpFade 0.5s ease-out, pulse 2s infinite; }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        /* Scoreboard Screen (Untouched) */
+        .score-box { display: flex; gap: 18px; margin-top: 30px; }
+        .score-col { 
+            flex: 1; padding: 25px 15px; background: #f9faf9; 
+            border-radius: 28px; border: 1px solid #edf2ed; 
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.01);
+        }
+        .score-col strong { font-size: 1rem; color: var(--primary); margin-bottom: 15px; display: block; }
+        .score-list { max-height: 350px; overflow-y: auto; scrollbar-width: none; /* הסתרת סקרולר ב-FF */ }
+        .score-list::-webkit-scrollbar { display: none; /* הסתרת סקרולר ב-Chrome */ }
+        
+        .score-row { 
+            display: flex; justify-content: space-between; 
+            padding: 14px 6px; border-bottom: 1px solid rgba(0,0,0,0.03); 
+            font-size: 0.95rem; color: #444;
+        }
+
+        /* Loading Spinner (Untouched) */
+        .spinner { width: 45px; height: 45px; border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 30px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div id="screen-welcome">
-        <h1>רותם & גל</h1>
-        <p>למי מהם אתם יותר דומים?</p>
-        <input type="text" id="username" placeholder="איך קוראים לכם?">
-        <button class="btn-main" onclick="startQuiz()">בואו נשחק!</button>
-        <button class="btn-secondary" onclick="fetchScoreboard(true)">צפייה בלוח התוצאות 🏆</button>
+    <div id="screen-welcome" class="screen">
+        <div class="game-logo">
+            <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="48" stroke="#1B3022" stroke-width="4"/>
+                <path d="M40 70C40 70 43.5 60 50 60C56.5 60 60 70 60 70" stroke="#C5A059" stroke-width="5" stroke-linecap="round"/>
+                <path d="M40 35C40 28 44 24 50 24C56 24 60 28 60 35C60 42 54 44 50 48V52" stroke="#1B3022" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="50" cy="53" r="3" fill="#C5A059"/>
+                <circle cx="50" cy="74" r="3" fill="#C5A059"/>
+            </svg>
+        </div>
+        <h1 style="font-weight: 700; letter-spacing: -1.5px;">מי אתם יותר?</h1>
+        <input type="text" id="username" placeholder="הכניסו שם מלא" autocomplete="off">
+        <button class="btn-main" onclick="startQuiz()">בואו נגלה למי אתם דומים</button>
+        <button class="btn-outline" onclick="goToScoreboard()">תוצאות האורחים</button>
     </div>
 
-    <div id="screen-quiz" class="hidden">
-        <div id="progress" style="font-size: 13px; margin-bottom: 10px; color: #666;"></div>
-        <img id="q-image" src="" class="q-img">
-        <h2 id="q-text" style="font-size: 20px; margin-bottom: 20px;"></h2>
+    <div id="screen-loading" class="screen hidden">
+        <div class="spinner"></div>
+        <p style="color: #777;">מעדכן נתונים...</p>
+    </div>
+
+    <div id="screen-quiz" class="screen hidden">
+        <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+        <div class="q-img-wrapper"><img id="q-image" src="" class="q-img" onerror="this.src='https://via.placeholder.com/400x200?text=Quiz'"></div>
+        <h2 id="q-text" style="font-size: 1.2rem; margin-bottom: 25px; min-height: 3rem;"></h2>
         <div id="options">
-            <button class="btn-option" id="btn-a" onclick="submitAnswer('A')"></button>
-            <button class="btn-option" id="btn-b" onclick="submitAnswer('B')"></button>
+            <button class="btn-outline" id="btn-a" onclick="submitAnswer('A')"></button>
+            <button class="btn-outline" id="btn-b" onclick="submitAnswer('B')"></button>
         </div>
     </div>
 
-    <div id="screen-result" class="hidden">
-        <h1>התוצאה שלכם:</h1>
-        <div id="result-display"></div>
-        <button class="btn-main" id="save-btn" onclick="saveResult()">הצטרפו ללוח התוצאות 🏆</button>
-        <div id="loading-spinner" class="hidden"><div class="loader"></div></div>
+    <div id="screen-result" class="screen hidden">
+        <div class="match-label">גילינו שאתם...</div>
+        <div id="result-content">
+            <div class="match-percent" id="count-up">0%</div>
+            <div class="match-name" id="winner-name">רותם</div>
+            <p id="winner-note" style="margin-top: 25px; color: #777; font-style: italic; line-height: 1.4;"></p>
+        </div>
+        <button class="btn-main" id="save-btn" onclick="saveResult()" style="margin-top: 35px;">הוספה לתוצאות האורחים</button>
     </div>
 
-    <div id="screen-scores" class="hidden">
-        <h2>לוח התוצאות 🏆</h2>
+    <div id="screen-scores" class="screen hidden">
+        <h1 style="font-size: 1.9rem; letter-spacing: -1px;">תוצאות האורחים 🏆</h1>
         <div class="score-box">
             <div class="score-col">
-                <strong>צוות רותם 🦁</strong>
-                <div id="list-rotem" style="margin-top:10px;"></div>
+                <strong>יותר כמו רותם</strong>
+                <div id="list-rotem" class="score-list"></div>
             </div>
             <div class="score-col">
-                <strong>צוות גל 🦊</strong>
-                <div id="list-gal" style="margin-top:10px;"></div>
+                <strong>יותר כמו גל</strong>
+                <div id="list-gal" class="score-list"></div>
             </div>
         </div>
-        <button class="btn-option" onclick="location.reload()" style="margin-top:20px;">חזרה למסך הבית</button>
+        <button class="btn-outline" onclick="location.reload()" style="margin-top:30px;">חזרה</button>
     </div>
 </div>
 
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxJh4LDAz16G-uEftVCO3vriiJc2WllrfQL77ctMCcU1jZiATuNIepHD-QWLo5Eta3N/exec';
 
+    // DB שאלות
     const questionsDB = [
         { text: "הודעות בוואטסאפ:", a: "עונה תוך שנייה", b: "עונה אחרי יומיים", r: "A", g: "B", img: "https://images.unsplash.com/photo-1611746872915-64382b5c76da?w=400" },
         { text: "סוללה בטלפון:", a: "מטעין ב-80%", b: "חי על ה-1%", r: "B", g: "A", img: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=400" },
         { text: "אריזה לטיול:", a: "רשימות חודש מראש", b: "דוחס הכל שעה לפני", r: "A", g: "A", img: "https://images.unsplash.com/photo-1553913861-c0fddf2619ee?w=400" },
         { text: "קפה של בוקר:", a: "נס קפה זריז", b: "טקס הפולים וההקצפה", r: "A", g: "B", img: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400" },
         { text: "ניווט בחו\"ל:", a: "גוגל מאפס צמוד", b: "איפה שהרגליים ייקחו", r: "A", g: "B", img: "https://images.unsplash.com/photo-1502101872923-d48509bff386?w=400" },
-        { text: "במסיבה:", a: "במרכז הרחבה", b: "בצד עם דרינק ושיחה", r: "B", g: "A", img: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400" },
+        { text: "במסיבה:", a: "במרכז הרחבה", b: "בצד עם דרינק", r: "B", g: "A", img: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400" },
         { text: "סדר יום:", a: "מתקתק משימות", b: "דוחה לרגע האחרון", r: "A", g: "B", img: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=400" },
         { text: "צילום תמונות:", a: "קליק אחד וזהו", b: "בוק של 50 תמונות", r: "A", g: "B", img: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400" },
-        { text: "אוכל רחוב:", a: "זורם על הכל", b: "בודק 40 ביקורות קודם", r: "A", g: "B", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" },
-        { text: "יציאה מהבית:", a: "בודק 3 פעמים את הגז", b: "יוצא ומתפלל לטוב", r: "B", g: "A", img: "https://images.unsplash.com/photo-1527030280862-64139fba04ca?w=400" }
+        { text: "אוכל רחוב:", a: "זורם על הכל", b: "בודק ביקורות", r: "A", g: "B", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" },
+        { text: "יציאה מהבית:", a: "בודק את הגז", b: "יוצא ומתפלל", r: "B", g: "A", img: "https://images.unsplash.com/photo-1527030280862-64139fba04ca?w=400" }
     ];
 
-    let currentQ = [];
-    let currentIndex = 0;
-    let rScore = 0;
-    let gScore = 0;
-    let name = "";
+    let currentQ = [], currentIndex = 0, rScore = 0, gScore = 0, name = "";
+    let cachedData = JSON.parse(localStorage.getItem('wedding_scores')) || [];
+
+    // סנכרון נתונים ברקע
+    async function syncData() {
+        try {
+            const res = await fetch(SCRIPT_URL);
+            const data = await res.json();
+            cachedData = data.map(u => {
+                let r = parseFloat(u.rotem), g = parseFloat(u.gal);
+                if (r > 0 && r < 1) { r *= 100; g *= 100; }
+                return { name: u.name, rotem: Math.round(r) || 0, gal: Math.round(g) || 0 };
+            });
+            localStorage.setItem('wedding_scores', JSON.stringify(cachedData));
+            if (!document.getElementById('screen-loading').classList.contains('hidden')) showScoreboard();
+        } catch (e) { console.log("Sync error"); }
+    }
+    syncData();
 
     function startQuiz() {
         name = document.getElementById('username').value.trim();
-        if(!name) return alert("בבקשה הכניסו שם כדי להתחיל");
-        currentQ = questionsDB.sort(() => 0.5 - Math.random()).slice(0, 10);
+        if(!name) return;
+        currentQ = [...questionsDB].sort(() => 0.5 - Math.random()).slice(0, 10);
         document.getElementById('screen-welcome').classList.add('hidden');
         document.getElementById('screen-quiz').classList.remove('hidden');
         loadQuestion();
@@ -103,11 +219,11 @@
 
     function loadQuestion() {
         const q = currentQ[currentIndex];
+        document.getElementById('progress-fill').style.width = `${(currentIndex / 10) * 100}%`;
         document.getElementById('q-text').innerText = q.text;
         document.getElementById('btn-a').innerText = q.a;
         document.getElementById('btn-b').innerText = q.b;
         document.getElementById('q-image').src = q.img;
-        document.getElementById('progress').innerText = `שאלה ${currentIndex + 1} מתוך 10`;
     }
 
     function submitAnswer(choice) {
@@ -119,67 +235,69 @@
         else showFinal();
     }
 
+    // פונקציית חשיפה מרגשת עם קונפטי
     function showFinal() {
         document.getElementById('screen-quiz').classList.add('hidden');
         document.getElementById('screen-result').classList.remove('hidden');
+        
         let rP = Math.round((rScore / (rScore + gScore)) * 100);
         let gP = 100 - rP;
-        document.getElementById('result-display').innerHTML = 
-            `<span style="color:#2d5a27">${rP}% רותם</span><br><span style="color:#8b0000">${gP}% גל</span>`;
+        
+        const isRotem = rP >= gP;
+        const winnerName = isRotem ? "רותם" : "גל";
+        const winnerPercent = isRotem ? rP : gP;
+        const winnerNote = isRotem ? "כדאי שתתכוננו, רותם כבר מחכה לכם בבר!" : "גל לגמרי מצאה את החצי השני שלה כאן.";
+
+        document.getElementById('winner-name').innerText = winnerName;
+        document.getElementById('winner-note').innerText = winnerNote;
+
+        // ספירה לאחור של האחוזים
+        let count = 0;
+        const timer = setInterval(() => {
+            count++;
+            document.getElementById('count-up').innerText = count + "%";
+            if (count >= winnerPercent) {
+                clearInterval(timer);
+                triggerConfetti(); // הפעלת הקונפטי ברגע השיא
+            }
+        }, 20);
     }
 
-    async function saveResult() {
-        document.getElementById('save-btn').classList.add('hidden');
-        document.getElementById('loading-spinner').classList.remove('hidden');
-        let rP = Math.round((rScore / (rScore + gScore)) * 100);
-        let gP = 100 - rP;
-
-        try {
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ name, rotem: rP, gal: gP })
-            });
-            setTimeout(() => fetchScoreboard(false), 1500);
-        } catch (e) {
-            fetchScoreboard(false);
-        }
+    // הגדרות הקונפטי בצבעי החתונה
+    function triggerConfetti() {
+        confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#1B3022', '#C5A059', '#FDFBF7'], // ירוק, זהב, פנינה
+            ticks: 250 // משך הזמן שהם נופלים
+        });
     }
 
-    async function fetchScoreboard(fromWelcome = false) {
-        if(fromWelcome) document.getElementById('screen-welcome').classList.add('hidden');
+    function saveResult() {
+        let rP = Math.round((rScore / (rScore + gScore)) * 100), gP = 100 - rP;
+        document.getElementById('save-btn').style.display = 'none';
+        cachedData.push({ name, rotem: rP, gal: gP });
+        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ name, rotem: rP, gal: gP }) });
+        setTimeout(goToScoreboard, 1000);
+    }
+
+    function goToScoreboard() {
+        document.getElementById('screen-welcome').classList.add('hidden');
         document.getElementById('screen-result').classList.add('hidden');
+        if (cachedData.length === 0) document.getElementById('screen-loading').classList.remove('hidden');
+        else showScoreboard();
+    }
+
+    function showScoreboard() {
+        document.getElementById('screen-loading').classList.add('hidden');
         document.getElementById('screen-scores').classList.remove('hidden');
-        document.getElementById('list-rotem').innerHTML = "טוען...";
-        document.getElementById('list-gal').innerHTML = "טוען...";
-
-        try {
-            const res = await fetch(SCRIPT_URL);
-            const rawData = await res.json();
-            
-            // עיבוד נתונים: הפיכה למספרים שלמים וטיפול במקרים של 0.55 -> 55
-            const data = rawData.map(u => {
-                let r = parseFloat(u.rotem);
-                let g = parseFloat(u.gal);
-                if (r > 0 && r < 1) r = r * 100;
-                if (g > 0 && g < 1) g = g * 100;
-                return { 
-                    name: u.name, 
-                    rotem: Math.round(r) || 0, 
-                    gal: Math.round(g) || 0 
-                };
-            });
-
-            const rList = data.filter(u => u.rotem >= u.gal).sort((a,b) => b.rotem - a.rotem);
-            const gList = data.filter(u => u.gal > u.rotem).sort((a,b) => b.gal - a.gal);
-
-            document.getElementById('list-rotem').innerHTML = rList.map(u => 
-                `<div class="score-row"><span>${u.name}</span><strong>${u.rotem}%</strong></div>`).join('');
-            document.getElementById('list-gal').innerHTML = gList.map(u => 
-                `<div class="score-row"><span>${u.name}</span><strong>${u.gal}%</strong></div>`).join('');
-        } catch (e) {
-            document.getElementById('list-rotem').innerHTML = "שגיאה בטעינה";
-        }
+        
+        // יצירת פריט בלוח - מציג רק את אחוז ההתאמה הגבוה (שם הוא מופיע)
+        const mapItem = u => `<div class="score-row"><span>${u.name}</span><strong>${u.rotem >= 50 ? u.rotem : u.gal}%</strong></div>`;
+        
+        document.getElementById('list-rotem').innerHTML = cachedData.filter(u => u.rotem >= 50).sort((a,b)=>b.rotem-a.rotem).map(mapItem).join('');
+        document.getElementById('list-gal').innerHTML = cachedData.filter(u => u.gal > 50).sort((a,b)=>b.gal-a.gal).map(mapItem).join('');
     }
 </script>
 </body>
