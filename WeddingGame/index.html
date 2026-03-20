@@ -42,7 +42,17 @@
         @keyframes screenFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .hidden { display: none; }
 
+        /* עיצוב הלוגו החדש כתמונה */
         .game-logo { margin-bottom: 20px; }
+        .couple-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+            padding: 3px;
+        }
+
         h1 { font-weight: 700; font-size: 2.2rem; margin: 10px 0 30px; letter-spacing: -1.5px; }
 
         input {
@@ -88,12 +98,7 @@
 <div class="container">
     <div id="screen-welcome" class="screen">
         <div class="game-logo">
-            <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="50" cy="50" r="48" stroke="#1B3022" stroke-width="4"/>
-                <path d="M40 70C40 70 43.5 60 50 60C56.5 60 60 70 60 70" stroke="#C5A059" stroke-width="5" stroke-linecap="round"/>
-                <path d="M40 35C40 28 44 24 50 24C56 24 60 28 60 35C60 42 54 44 50 48V52" stroke="#1B3022" stroke-width="6" stroke-linecap="round"/>
-                <circle cx="50" cy="53" r="3" fill="#C5A059"/><circle cx="50" cy="74" r="3" fill="#C5A059"/>
-            </svg>
+            <img src="couple.jpg" alt="Couple Logo" class="couple-img">
         </div>
         <h1>מי אתם יותר?</h1>
         <input type="text" id="username" placeholder="איך קוראים לכם?" autocomplete="off">
@@ -135,7 +140,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRTCNBfrckqk4g_hzrlE33KUO1IHgf7KgWaQEZ01WoIdJONrj1wcB1IrI830GhH_yT/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxRTCNBfrckqk4g_hzrlE33KUO1IHgf7KgWaQEZ01WoIdJONrj1wcB1IrI830GhH_yT/exec';
 
     const questionsDB = [
         { text: "הודעות בוואטסאפ:", a: "עונה תוך שנייה", b: "עונה אחרי יומיים", r: "A", g: "B", img: "https://images.unsplash.com/photo-1611746872915-64382b5c76da?w=400" },
@@ -154,9 +159,8 @@
     let cachedData = JSON.parse(localStorage.getItem('wedding_scores')) || [];
     let fetchPromise = null;
 
-    // פונקציית סנכרון חכמה שמחזירה Promise כדי שאחרים יוכלו "לחכות" לה
     function syncData() {
-        if (fetchPromise) return fetchPromise; // אם כבר יש טעינה באוויר, תחזיר אותה
+        if (fetchPromise) return fetchPromise;
 
         fetchPromise = fetch(SCRIPT_URL)
             .then(res => res.json())
@@ -167,12 +171,10 @@
                     return { name: u.name, rotem: Math.round(r) || 0, gal: Math.round(g) || 0 };
                 });
                 localStorage.setItem('wedding_scores', JSON.stringify(cachedData));
-                
-                // עדכון הלוח אם הוא פתוח
                 if (!document.getElementById('screen-scores').classList.contains('hidden')) {
                     renderScores();
                 }
-                fetchPromise = null; // איפוס כדי לאפשר טעינה חדשה בעתיד
+                fetchPromise = null;
                 return cachedData;
             })
             .catch(e => {
@@ -184,7 +186,6 @@
         return fetchPromise;
     }
 
-    // הפעלה ראשונה וסנכרון כל 30 שניות
     syncData();
     setInterval(syncData, 30000);
 
@@ -243,31 +244,22 @@
         setTimeout(goToScoreboard, 500);
     }
 
-    // הפונקציה המתוקנת למניעת טעינה אינסופית
     async function goToScoreboard() {
         document.getElementById('screen-welcome').classList.add('hidden');
         document.getElementById('screen-result').classList.add('hidden');
-        
-        // אם יש נתונים (אפילו ישנים מה-Cache), נציג אותם מיד
         if (cachedData.length > 0) {
             document.getElementById('screen-scores').classList.remove('hidden');
             renderScores();
-            // וננסה לעדכן ברקע
             syncData(); 
         } else {
-            // רק אם אין כלום - נציג מסך טעינה
             document.getElementById('screen-loading').classList.remove('hidden');
-            
-            // הגנה: אם השרת לא עונה תוך 3 שניות, נשחרר את הטעינה
             const timeout = setTimeout(() => {
                 document.getElementById('screen-loading').classList.add('hidden');
                 document.getElementById('screen-scores').classList.remove('hidden');
                 renderScores();
             }, 3000);
-
-            await syncData(); // נחכה ל-Promise של הטעינה
+            await syncData();
             clearTimeout(timeout);
-            
             document.getElementById('screen-loading').classList.add('hidden');
             document.getElementById('screen-scores').classList.remove('hidden');
             renderScores();
