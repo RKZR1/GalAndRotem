@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Who Are You More? | Wedding Game</title>
+    <title>Gal&Rotem's Wedding Game</title>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
@@ -97,13 +97,13 @@
         </div>
         <h1>מי אתם יותר?</h1>
         <input type="text" id="username" placeholder="איך קוראים לכם?" autocomplete="off">
-        <button class="btn-main" onclick="startQuiz()">בואו נגלה למי אתם דומים</button>
+        <button class="btn-main" onclick="startQuiz()">ענו על השאלות וגלו למי אתם דומים יותר</button>
         <button class="btn-outline" onclick="goToScoreboard()">תוצאות האורחים</button>
     </div>
 
     <div id="screen-loading" class="screen hidden">
         <div class="spinner"></div>
-        <p>מעדכן נתונים מהשטח...</p>
+        <p>מעדכן נתונים...</p>
     </div>
 
     <div id="screen-quiz" class="screen hidden">
@@ -135,7 +135,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxJh4LDAz16G-uEftVCO3vriiJc2WllrfQL77ctMCcU1jZiATuNIepHD-QWLo5Eta3N/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRTCNBfrckqk4g_hzrlE33KUO1IHgf7KgWaQEZ01WoIdJONrj1wcB1IrI830GhH_yT/exec';
 
     const questionsDB = [
         { text: "הודעות בוואטסאפ:", a: "עונה תוך שנייה", b: "עונה אחרי יומיים", r: "A", g: "B", img: "https://images.unsplash.com/photo-1611746872915-64382b5c76da?w=400" },
@@ -258,12 +258,12 @@
             // רק אם אין כלום - נציג מסך טעינה
             document.getElementById('screen-loading').classList.remove('hidden');
             
-            // הגנה: אם השרת לא עונה תוך 6 שניות, נשחרר את הטעינה
+            // הגנה: אם השרת לא עונה תוך 3 שניות, נשחרר את הטעינה
             const timeout = setTimeout(() => {
                 document.getElementById('screen-loading').classList.add('hidden');
                 document.getElementById('screen-scores').classList.remove('hidden');
                 renderScores();
-            }, 6000);
+            }, 3000);
 
             await syncData(); // נחכה ל-Promise של הטעינה
             clearTimeout(timeout);
