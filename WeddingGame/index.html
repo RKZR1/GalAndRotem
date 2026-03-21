@@ -187,7 +187,7 @@
     }
 
     syncData();
-    setInterval(syncData, 30000);
+    setInterval(syncData, 60000);
 
     function startQuiz() {
         name = document.getElementById('username').value.trim();
@@ -257,7 +257,7 @@
                 document.getElementById('screen-loading').classList.add('hidden');
                 document.getElementById('screen-scores').classList.remove('hidden');
                 renderScores();
-            }, 3000);
+            }, 6000);
             await syncData();
             clearTimeout(timeout);
             document.getElementById('screen-loading').classList.add('hidden');
