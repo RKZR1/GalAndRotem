@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <title>Gal&Rotem's Wedding Game</title>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -40,9 +42,8 @@
 
         .screen { animation: screenFadeIn 0.5s ease-out forwards; }
         @keyframes screenFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .hidden { display: none; }
+        .hidden { display: none !important; }
 
-        /* עיצוב הלוגו החדש כתמונה */
         .game-logo { margin-bottom: 20px; }
         .couple-img {
             width: 240px;
@@ -101,9 +102,9 @@
             <img src="couple.jpg" alt="Couple Logo" class="couple-img">
         </div>
         <h1>מי אתם יותר?</h1>
-        <input type="text" id="username" placeholder="איך קוראים לכם?" autocomplete="off">
-        <button class="btn-main" onclick="startQuiz()">ענו על השאלות וגלו למי אתם דומים יותר</button>
-        <button class="btn-outline" onclick="goToScoreboard()">תוצאות האורחים</button>
+        <input type="text" id="username" placeholder="איך קוראים לכם?" maxlength="25" autocomplete="off">
+        <button class="btn-main" id="btn-start">ענו על השאלות וגלו למי אתם דומים יותר</button>
+        <button class="btn-outline" id="btn-scores">תוצאות האורחים</button>
     </div>
 
     <div id="screen-loading" class="screen hidden">
@@ -113,20 +114,20 @@
 
     <div id="screen-quiz" class="screen hidden">
         <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
-        <div class="q-img-wrapper"><img id="q-image" src="" class="q-img"></div>
+        <div class="q-img-wrapper"><img id="q-image" src="" class="q-img" alt=""></div>
         <h2 id="q-text" style="font-size: 1.2rem; margin-bottom: 25px;"></h2>
         <div id="options">
-            <button class="btn-outline" id="btn-a" onclick="submitAnswer('A')"></button>
-            <button class="btn-outline" id="btn-b" onclick="submitAnswer('B')"></button>
+            <button class="btn-outline" id="btn-a"></button>
+            <button class="btn-outline" id="btn-b"></button>
         </div>
     </div>
 
     <div id="screen-result" class="screen hidden">
         <div class="match-label">גילינו שאתם...</div>
         <div class="match-percent" id="count-up">0%</div>
-        <div class="match-name" id="winner-name">רותם</div>
+        <div class="match-name" id="winner-name"></div>
         <p id="winner-note" style="margin-top: 20px; color: #777; font-style: italic;"></p>
-        <button class="btn-main" id="save-btn" onclick="saveResult()" style="margin-top: 30px;">הוספה לתוצאות האורחים</button>
+        <button class="btn-main" id="save-btn" style="margin-top: 30px;">הוספה לתוצאות האורחים</button>
     </div>
 
     <div id="screen-scores" class="screen hidden">
@@ -135,12 +136,26 @@
             <div class="score-col"><strong>יותר כמו רותם</strong><div id="list-rotem" class="score-list"></div></div>
             <div class="score-col"><strong>יותר כמו גל</strong><div id="list-gal" class="score-list"></div></div>
         </div>
-        <button class="btn-outline" onclick="backToWelcome()" style="margin-top:20px;">חזרה</button>
+        <button class="btn-outline" id="btn-back" style="margin-top:20px;">חזרה</button>
     </div>
 </div>
 
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRTCNBfrckqk4g_hzrlE33KUO1IHgf7KgWaQEZ01WoIdJONrj1wcB1IrI830GhH_yT/exec';
+
+    // --- Active Defense Module (Mini-WAF) ---
+    const MALICIOUS_PAYLOAD_REGEX = /(<([^>]+)>)|(javascript:)|(on\w+\s*=)|(eval\s*\()/i;
+
+    function isMalicious(input) {
+        return typeof input === 'string' && MALICIOUS_PAYLOAD_REGEX.test(input);
+    }
+
+    function bustAttacker() {
+        // מחיקת עקבות זדוניות וזריקת התוקף
+        localStorage.removeItem('wedding_scores');
+        window.location.replace("https://galandrotem.com/busted");
+    }
+    // ----------------------------------------
 
     const questionsDB = [
         { text: "הודעות בוואטסאפ:", a: "עונה תוך שנייה", b: "עונה אחרי יומיים", r: "A", g: "B", img: "https://images.unsplash.com/photo-1611746872915-64382b5c76da?w=400" },
@@ -156,8 +171,40 @@
     ];
 
     let currentQ = [], currentIndex = 0, rScore = 0, gScore = 0, name = "";
-    let cachedData = JSON.parse(localStorage.getItem('wedding_scores')) || [];
+    let cachedData = [];
     let fetchPromise = null;
+
+    function parseUserData(rawName, rawR, rawG) {
+        let r = Number(rawR);
+        let g = Number(rawG);
+        
+        if (isNaN(r) || isNaN(g)) return null;
+        if (r > 0 && r < 1) { r *= 100; g *= 100; }
+        
+        r = Math.max(0, Math.min(100, Math.round(r)));
+        g = Math.max(0, Math.min(100, Math.round(g)));
+        
+        return { name: String(rawName || "").trim().substring(0, 25), rotem: r, gal: g };
+    }
+
+    // בדיקת חדירה דרך LocalStorage
+    try {
+        const localDataString = localStorage.getItem('wedding_scores');
+        if (localDataString) {
+            // אם מישהו ערך את הזיכרון המקומי והזריק לשם קוד: טריגר ישיר
+            if (isMalicious(localDataString)) {
+                bustAttacker();
+            } else {
+                const parsed = JSON.parse(localDataString);
+                if (Array.isArray(parsed)) {
+                    cachedData = parsed.map(u => parseUserData(u.name, u.rotem, u.gal)).filter(Boolean);
+                }
+            }
+        }
+    } catch(e) { 
+        cachedData = []; 
+        localStorage.removeItem('wedding_scores'); 
+    }
 
     function syncData() {
         if (fetchPromise) return fetchPromise;
@@ -165,12 +212,16 @@
         fetchPromise = fetch(SCRIPT_URL)
             .then(res => res.json())
             .then(data => {
+                if (!Array.isArray(data)) throw new Error("Invalid schema");
+                
                 cachedData = data.map(u => {
-                    let r = parseFloat(u.rotem), g = parseFloat(u.gal);
-                    if (r > 0 && r < 1) { r *= 100; g *= 100; }
-                    return { name: u.name, rotem: Math.round(r) || 0, gal: Math.round(g) || 0 };
-                });
+                    // סינון שקט לנתוני שרת (כדי לא לעשות DoS לאורחים במידה והשרת נפרץ)
+                    if (isMalicious(u.name)) return null;
+                    return parseUserData(u.name, u.rotem, u.gal);
+                }).filter(Boolean);
+                
                 localStorage.setItem('wedding_scores', JSON.stringify(cachedData));
+                
                 if (!document.getElementById('screen-scores').classList.contains('hidden')) {
                     renderScores();
                 }
@@ -178,7 +229,6 @@
                 return cachedData;
             })
             .catch(e => {
-                console.log("Sync error");
                 fetchPromise = null;
                 return cachedData;
             });
@@ -190,10 +240,20 @@
     setInterval(syncData, 60000);
 
     function startQuiz() {
-        name = document.getElementById('username').value.trim();
-        if(!name) return alert("הכניסו שם כדי להתחיל");
+        const rawName = document.getElementById('username').value.trim();
+        
+        if(!rawName) return alert("הכניסו שם כדי להתחיל");
+        
+        // --- Active Defense Trigger ---
+        // אם המשתמש ניסה להזין קוד במקום שם, זורקים אותו לעמוד Busted מיד
+        if (isMalicious(rawName)) {
+            return bustAttacker();
+        }
+
+        name = rawName.substring(0, 25);
         currentIndex = 0; rScore = 0; gScore = 0;
         currentQ = [...questionsDB].sort(() => 0.5 - Math.random()).slice(0, 10);
+        
         document.getElementById('screen-welcome').classList.add('hidden');
         document.getElementById('screen-quiz').classList.remove('hidden');
         loadQuestion();
@@ -202,9 +262,10 @@
     function loadQuestion() {
         const q = currentQ[currentIndex];
         document.getElementById('progress-fill').style.width = `${(currentIndex / 10) * 100}%`;
-        document.getElementById('q-text').innerText = q.text;
-        document.getElementById('btn-a').innerText = q.a;
-        document.getElementById('btn-b').innerText = q.b;
+        
+        document.getElementById('q-text').textContent = q.text;
+        document.getElementById('btn-a').textContent = q.a;
+        document.getElementById('btn-b').textContent = q.b;
         document.getElementById('q-image').src = q.img;
     }
 
@@ -220,18 +281,27 @@
     function showFinal() {
         document.getElementById('screen-quiz').classList.add('hidden');
         document.getElementById('screen-result').classList.remove('hidden');
+        
         let rP = Math.round((rScore / (rScore + gScore)) * 100), gP = 100 - rP;
         const isRotem = rP >= gP;
-        document.getElementById('winner-name').innerText = isRotem ? "רותם" : "גל";
-        document.getElementById('winner-note').innerText = isRotem ? "כדאי שתתכוננו, רותם כבר מחכה לכם בבר!" : "גל לגמרי מצאה את החצי השני שלה כאן.";
+        
+        document.getElementById('winner-name').textContent = isRotem ? "רותם" : "גל";
+        document.getElementById('winner-note').textContent = isRotem ? 
+            "כדאי שתתכוננו, רותם כבר מחכה לכם בבר!" : 
+            "גל לגמרי מצאה את החצי השני שלה כאן.";
+            
         document.getElementById('save-btn').classList.remove('hidden');
+        
         let count = 0;
+        const target = isRotem ? rP : gP;
         const timer = setInterval(() => {
             count++;
-            document.getElementById('count-up').innerText = count + "%";
-            if (count >= (isRotem ? rP : gP)) {
+            document.getElementById('count-up').textContent = count + "%";
+            if (count >= target) {
                 clearInterval(timer);
-                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#1B3022', '#C5A059'] });
+                if(typeof confetti === 'function') {
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#1B3022', '#C5A059'] });
+                }
             }
         }, 20);
     }
@@ -239,27 +309,27 @@
     function saveResult() {
         let rP = Math.round((rScore / (rScore + gScore)) * 100), gP = 100 - rP;
         document.getElementById('save-btn').classList.add('hidden');
-        cachedData.push({ name, rotem: rP, gal: gP });
+        
+        const safeUser = parseUserData(name, rP, gP);
+        if(safeUser) cachedData.push(safeUser);
+        
+        // לא נגעתי! ה-fetch המקורי נשאר כמו שהוא
         fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ name, rotem: rP, gal: gP }) });
+        
         setTimeout(goToScoreboard, 500);
     }
 
     async function goToScoreboard() {
         document.getElementById('screen-welcome').classList.add('hidden');
         document.getElementById('screen-result').classList.add('hidden');
+        
         if (cachedData.length > 0) {
             document.getElementById('screen-scores').classList.remove('hidden');
             renderScores();
             syncData(); 
         } else {
             document.getElementById('screen-loading').classList.remove('hidden');
-            const timeout = setTimeout(() => {
-                document.getElementById('screen-loading').classList.add('hidden');
-                document.getElementById('screen-scores').classList.remove('hidden');
-                renderScores();
-            }, 6000);
             await syncData();
-            clearTimeout(timeout);
             document.getElementById('screen-loading').classList.add('hidden');
             document.getElementById('screen-scores').classList.remove('hidden');
             renderScores();
@@ -267,9 +337,34 @@
     }
 
     function renderScores() {
-        const mapItem = u => `<div class="score-row"><span>${u.name}</span><strong>${u.rotem >= 50 ? u.rotem : u.gal}%</strong></div>`;
-        document.getElementById('list-rotem').innerHTML = cachedData.filter(u => u.rotem >= 50).sort((a,b)=>b.rotem-a.rotem).map(mapItem).join('');
-        document.getElementById('list-gal').innerHTML = cachedData.filter(u => u.gal > 50).sort((a,b)=>b.gal-a.gal).map(mapItem).join('');
+        const createSafeRow = (u) => {
+            const row = document.createElement('div');
+            row.className = 'score-row';
+            
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = u.name; 
+            
+            const scoreStrong = document.createElement('strong');
+            scoreStrong.textContent = `${u.rotem >= 50 ? u.rotem : u.gal}%`;
+            
+            row.appendChild(nameSpan);
+            row.appendChild(scoreStrong);
+            return row;
+        };
+
+        const listRotem = document.getElementById('list-rotem');
+        const listGal = document.getElementById('list-gal');
+        
+        listRotem.innerHTML = '';
+        listGal.innerHTML = '';
+
+        cachedData.filter(u => u.rotem >= 50)
+            .sort((a,b)=>b.rotem-a.rotem)
+            .forEach(u => listRotem.appendChild(createSafeRow(u)));
+
+        cachedData.filter(u => u.gal > 50)
+            .sort((a,b)=>b.gal-a.gal)
+            .forEach(u => listGal.appendChild(createSafeRow(u)));
     }
 
     function backToWelcome() {
@@ -277,6 +372,14 @@
         document.getElementById('screen-welcome').classList.remove('hidden');
         document.getElementById('username').value = "";
     }
+
+    document.getElementById('btn-start').addEventListener('click', startQuiz);
+    document.getElementById('btn-scores').addEventListener('click', goToScoreboard);
+    document.getElementById('btn-a').addEventListener('click', () => submitAnswer('A'));
+    document.getElementById('btn-b').addEventListener('click', () => submitAnswer('B'));
+    document.getElementById('save-btn').addEventListener('click', saveResult);
+    document.getElementById('btn-back').addEventListener('click', backToWelcome);
+
 </script>
 </body>
 </html>
