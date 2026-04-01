@@ -2,687 +2,384 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#fafafa">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500;600;700&family=Frank+Ruhl+Libre:wght@300;400;500;600;700&family=Assistant:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <title>Gal & Rotem Wedding</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <title>Gal&Rotem's Wedding Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --primary: #1B3022;
+            --accent: #C5A059;
+            --bg: #fdfbf7;
+            --glass: rgba(255, 255, 255, 0.98);
+            --shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Hebrew', 'Arial Hebrew', sans-serif;
-            background: linear-gradient(to bottom, #fffbf7 0%, #fafafa 100%);
-            min-height: 100vh;
-            min-height: -webkit-fill-available;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 20px;
-            color: #1a1a1a;
-            overflow-x: hidden;
-            position: relative;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            direction: rtl;
-        }
-
-                /* Container for the hidden links */
-        .sub-links-container {
-            max-height: 0;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 0;
-            opacity: 0;
-        }
-
-        /* When the parent is active */
-        .link-card.active .sub-links-container {
-            max-height: 400px; /* Adjust based on number of links */
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-            opacity: 1;
-        }
-
-        /* Style for the individual sub-buttons */
-        .sub-link-item {
-            background: #fdfdfd;
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            padding: 12px;
-            border-radius: 12px;
-            text-decoration: none;
-            color: #1a1a1a;
             font-family: 'Assistant', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-
-        .sub-link-item:active {
-            background: #f0f0f0;
+            background: var(--bg);
+            background-image: radial-gradient(#e5e1da 0.8px, transparent 0.8px);
+            background-size: 40px 40px;
+            color: var(--primary);
+            margin: 0;
+            display: flex;
+            justify-content: center; align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .container {
-            max-width: 600px;
-            width: 100%;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-            flex: 1;
-            justify-content: center;
-            position: relative;
-            z-index: 1;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-
-        header {
+            background: var(--glass);
+            width: 92%; max-width: 420px;
+            padding: 50px 30px;
+            border-radius: 35px;
+            box-shadow: var(--shadow);
             text-align: center;
-            padding: 30px 20px 20px;
-            direction: ltr;
+            border: 1px solid rgba(255, 255, 255, 0.7);
         }
 
-        .headline-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 10px;
+        .screen { animation: screenFadeIn 0.5s ease-out forwards; }
+        @keyframes screenFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden { display: none !important; }
+
+        .game-logo { margin-bottom: 20px; }
+        .couple-img {
+            width: 240px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 20%;
+            border: 1px solid var(--primary);
+            padding: 3px;
         }
 
-        .flower-decoration {
-            font-size: 1.5rem;
-            opacity: 0.6;
-            filter: grayscale(30%);
-            animation: gentleFloat 3s ease-in-out infinite;
+        h1 { font-weight: 700; font-size: 2.2rem; margin: 10px 0 30px; letter-spacing: -1.5px; }
+
+        input {
+            width: 100%; padding: 18px; border: 1px solid #e0e0e0;
+            border-radius: 20px; margin-bottom: 20px;
+            font-size: 18px; box-sizing: border-box; outline: none;
+            background: #fafafa;
         }
 
-        .flower-decoration:first-child {
-            animation-delay: 0s;
+        button {
+            width: 100%; padding: 19px; border: none;
+            border-radius: 20px; font-size: 18px; font-weight: 600;
+            cursor: pointer; transition: 0.3s ease;
+            margin-bottom: 12px; font-family: inherit;
         }
 
-        .flower-decoration:last-child {
-            animation-delay: 1.5s;
-        }
+        .btn-main { background: var(--primary); color: white; }
+        .btn-outline { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
 
-        @keyframes gentleFloat {
-            0%, 100% {
-                transform: translateY(0) rotate(0deg);
-            }
-            50% {
-                transform: translateY(-5px) rotate(5deg);
-            }
-        }
+        .progress-bar { height: 4px; background: #f0f0f0; border-radius: 10px; margin-bottom: 25px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.4s; }
+        .q-img-wrapper { width: 100%; height: 210px; border-radius: 24px; overflow: hidden; margin-bottom: 25px; background: #eee; }
+        .q-img { width: 100%; height: 100%; object-fit: cover; }
 
-        h1 {
-            font-family: 'Gabriola', serif;
-            font-weight: 400;
-            font-size: 48px;
-            letter-spacing: 0.25em;
-            text-transform: uppercase;
-            color: #7a7a7a;
-            text-align: center;
-            margin: 0;
-        }
+        .match-label { font-size: 1.2rem; color: #666; margin-bottom: 5px; }
+        .match-name { font-size: 3.5rem; font-weight: 800; color: var(--primary); margin: 0; letter-spacing: -2px; }
+        .match-percent { font-size: 5rem; font-weight: 800; color: var(--accent); margin: 10px 0; display: block; animation: pulse 2s infinite; }
+        
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
 
-        .subheadline {
-            font-family: 'Playfair Display', serif;
-            font-weight: 400;
-            font-size: 16px;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            color: #9a9a9a;
-            text-align: center;
-            margin-top: 8px;
-            margin-bottom: 4px;
-        }
+        .score-box { display: flex; gap: 15px; margin-top: 25px; }
+        .score-col { flex: 1; padding: 20px 10px; background: #f9faf9; border-radius: 24px; border: 1px solid #f0f2f0; }
+        .score-list { max-height: 320px; overflow-y: auto; scrollbar-width: none; }
+        .score-list::-webkit-scrollbar { display: none; }
+        .score-row { display: flex; justify-content: space-between; padding: 12px 6px; border-bottom: 1px solid rgba(0,0,0,0.03); font-size: 0.9rem; }
 
-        .date-subheadline {
-            font-family: 'Playfair Display', serif;
-            font-weight: 400;
-            font-size: 16px;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            color: #9a9a9a;
-            text-align: center;
-            margin-top: 0;
-        }
-
-        .photo-wrapper {
-            position: relative;
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .couple-photo {
-            width: 100%;
-            max-width: 100%;
-            height: auto;
-            max-height: 500px;
-            object-fit: contain;
-            border-radius: 0;
-            display: block;
-            box-shadow: none;
-            border: none;
-            background: transparent;
-            transition: opacity 0.3s ease;
-        }
-
-        .couple-photo:hover {
-            opacity: 0.95;
-        }
-
-        .photo-placeholder {
-            width: 100%;
-            max-width: 500px;
-            height: 400px;
-            margin: 0 auto;
-            border-radius: 0;
-            background: linear-gradient(135deg, #f5e6d3 0%, #faf0e6 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #999;
-            font-size: 0.9rem;
-            border: none;
-            box-shadow: none;
-        }
-
-        .schedule-photo-wrapper {
-            width: 100%;
-            max-width: 500px;
-            margin: 40px auto 20px;
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: transparent;
-        }
-
-        .schedule-photo {
-            width: 100%;
-            max-width: 100%;
-            height: auto;
-            max-height: 600px;
-            object-fit: contain;
-            border-radius: 0;
-            display: block;
-            background: transparent;
-            mix-blend-mode: normal;
-        }
-
-        .scroll-indicator {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            opacity: 0.6;
-            animation: gentleBounce 2s ease-in-out infinite;
-            pointer-events: none;
-            z-index: 100;
-            transition: opacity 0.3s ease;
-        }
-
-        .scroll-indicator.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .scroll-arrow {
-            font-size: 2.5rem;
-            color: #9a9a9a;
-            filter: grayscale(100%);
-        }
-
-        @keyframes gentleBounce {
-            0%, 100% {
-                transform: translateX(-50%) translateY(0);
-            }
-            50% {
-                transform: translateX(-50%) translateY(10px);
-            }
-        }
-
-        .links-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            padding: 0 10px;
-            align-items: center;
-        }
-
-        .link-card {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 20px;
-            text-decoration: none;
-            color: #1a1a1a;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-        }
-
-        .link-card:hover {
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-            transform: translateY(-3px);
-            border-color: rgba(0, 0, 0, 0.1);
-        }
-
-        .link-card:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        }
-
-        .link-content {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            text-align: center;
-            align-items: center;
-            width: 100%;
-        }
-
-        .link-title {
-            font-family: 'Assistant', sans-serif;
-            letter-spacing: 0.08em;
-            direction: rtl;
-            font-size: 1.2rem;
-            font-weight: 500;
-            color: #1a1a1a;
-            margin-bottom: 0;
-        }
-
-        .link-info {
-            font-family: 'Assistant', sans-serif;
-            letter-spacing: 0.08em;
-            direction: rtl;
-            font-size: 0.9rem;
-            color: #666;
-            line-height: 1.5;
-        }
-        .link-info-2 {
-            font-family: 'Assistant', sans-serif;
-            letter-spacing: 0.08em;
-            direction: rtl;
-            font-size: 0.7rem;
-            color: #666;
-            line-height: 1.5;
-        }
-
-        .link-icon {
-            font-size: 2.5rem;
-            filter: grayscale(20%);
-            opacity: 0.85;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.3s ease;
-        }
-
-        .link-card:hover .link-icon {
-            transform: scale(1.1);
-        }
-
-        footer {
-            text-align: center;
-            padding: 30px 20px 20px;
-            font-size: 0.75rem;
-            color: #999;
-            letter-spacing: 0.5px;
-            direction: ltr;
-        }
-
-        .footer-text {
-            margin: 0;
-        }
-
-        /* Mobile optimizations */
-        @media (max-width: 480px) {
-            body {
-                padding: 15px;
-            }
-
-            header {
-                padding: 20px 15px 15px;
-            }
-
-            h1 {
-                font-size: 28px;
-                letter-spacing: 0.25em;
-            }
-
-            .flower-decoration {
-                font-size: 1.2rem;
-            }
-
-            .headline-wrapper {
-                gap: 10px;
-            }
-
-            .subheadline {
-                font-size: 14px;
-                letter-spacing: 0.3em;
-            }
-
-            .date-subheadline {
-                font-size: 14px;
-                letter-spacing: 0.3em;
-            }
-
-            .photo-wrapper {
-                padding: 10px;
-                max-width: 100%;
-            }
-
-            .couple-photo {
-                max-height: 350px;
-            }
-
-            .photo-placeholder {
-                max-width: 100%;
-                height: 300px;
-            }
-
-            .schedule-photo-wrapper {
-                margin: 30px auto 15px;
-            }
-
-            .schedule-photo {
-                max-height: 400px;
-            }
-
-            .scroll-indicator {
-                bottom: 20px;
-            }
-
-            .scroll-arrow {
-                font-size: 2rem;
-            }
-
-            .links-container {
-                padding: 0;
-                gap: 15px;
-            }
-
-            .link-card {
-                padding: 18px 15px;
-                flex-direction: column;
-                gap: 12px;
-                text-align: center;
-                max-width: 350px;
-            }
-
-            .link-content {
-                width: 100%;
-                align-items: center;
-            }
-
-            .link-title {
-                font-size: 1.1rem;
-            }
-
-            .link-info {
-                font-size: 0.85rem;
-            }
-            .link-info-2 {
-                font-size: 0.85rem;
-            }
-
-            .link-icon {
-                font-size: 2rem;
-            }
-
-            footer {
-                padding: 20px 15px 15px;
-            }
-        }
-
-        /* Extra small phones */
-        @media (max-width: 360px) {
-            h1 {
-                font-size: 22px;
-                letter-spacing: 0.25em;
-            }
-
-            .flower-decoration {
-                font-size: 1rem;
-            }
-
-            .headline-wrapper {
-                gap: 8px;
-            }
-        }
-
-        /* Prevent text selection on tap */
-        .link-card {
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            user-select: none;
-        }
-
-        /* Smooth animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .photo-wrapper {
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        .couple-photo,
-        .photo-placeholder {
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        .link-card {
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        .link-card:nth-child(1) {
-            animation-delay: 0.2s;
-        }
-
-        .link-card:nth-child(2) {
-            animation-delay: 0.3s;
-        }
-
-        .link-card:nth-child(3) {
-            animation-delay: 0.4s;
-        }
+        .spinner { width: 40px; height: 40px; border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="headline-wrapper">
-                <h1>Gal & Rotem</h1>
-            </div>
-            <p class="subheadline">Celebrating Love</p>
-            <p class="date-subheadline">04.05.2026</p>
-        </header>
 
-        <!-- Photo will be loaded from couple-photo.jpg file -->
-        <div class="photo-wrapper">
-            <img src="couple-photo.jpg" alt="Gal and Rotem" class="couple-photo" id="couple-photo" onerror="this.style.display='none'; document.getElementById('photo-placeholder').style.display='flex';">
-            <div class="photo-placeholder" id="photo-placeholder" style="display: none;">
-                הוסף את התמונה שלך כאן
-            </div>
+<div class="container">
+    <div id="screen-welcome" class="screen">
+        <div class="game-logo">
+            <img src="couple.jpg" alt="Couple Logo" class="couple-img">
         </div>
+        <h1>מי אתם יותר?</h1>
+        <input type="text" id="username" placeholder="איך קוראים לכם?" maxlength="25" autocomplete="off">
+        <button class="btn-main" id="btn-start">ענו על השאלות וגלו למי אתם דומים יותר</button>
+        <button class="btn-outline" id="btn-scores">תוצאות האורחים</button>
+    </div>
 
-        <div class="links-container">
-            <a href="https://photos.app.goo.gl/UNVCZTaUjiPkHpRS9" class="link-card" target="_blank" rel="noopener noreferrer">
-                <div class="link-icon">📸</div>
-                <div class="link-content">
-                    <div class="link-title">אלבום תמונות</div>
-                    <div class="link-info">מוזמנים לשתף איתנו את הערב מזוית המבט שלכם😊</div>
-                </div>
-            </a>
+    <div id="screen-loading" class="screen hidden">
+        <div class="spinner"></div>
+        <p>מעדכן נתונים...</p>
+    </div>
 
-            <div class="link-card" id="paybox-trigger" style="cursor: pointer;">
-                <div class="link-icon">💳</div>
-                <div class="link-content">
-                    <div class="link-title">להעברת מתנות</div>
-                    <!--  <div class="link-info">מתנות ללא עמלה</div> -->
-                </div>
-                <div id="paybox-sublinks" class="sub-links-container">
-                    <a href="https://links.payboxapp.com/v3Hi0qH3XUb" class="sub-link-item" target="_blank">Paybox 1</a>
-                    <a href="https://links.payboxapp.com/xxsQdH6VZUb" class="sub-link-item" target="_blank">Paybox 2</a>
-                    <a href="https://www.bitpay.co.il/app/me/471034DA-1E2D-6D9B-35B2-46E7944EF0C176F4" class="sub-link-item" target="_blank">Bit 1</a>
-                    <a href="https://www.bitpay.co.il/app/me/573B82D9-B957-1F72-AE04-95FCDF04588BE235" class="sub-link-item" target="_blank">Bit 2</a>
-                    
-                    <a href="https://wiwi.gifts/2X1z7r" class="sub-link-item" target="_blank">שירות מתנות באשראי
-                        <div class="link-info-2">*עמלה</div>
-                    </a>
-
-                </div>
-            </div>
-
-            <!--  
-            <a href="https://links.payboxapp.com/v3Hi0qH3XUb" class="link-card" target="_blank" rel="noopener noreferrer">
-                <div class="link-icon">💳</div>
-                <div class="link-content">
-                    <div class="link-title">קישור Paybox</div>
-                    <div class="link-info">מתנות ללא עמלה</div>
-                </div>
-            </a>
-           -->
-
-            <a href="#"
-            class="link-card"
-            rel="noopener noreferrer"
-            onclick="
-                try {
-                navigator.sendBeacon(
-                    'https://formspree.io/f/mzddranw',
-                    JSON.stringify({
-                    page: window.location.href
-                    })
-                );
-                } catch (e) {}
-            ">
-                <div class="link-icon">🎮</div>
-                <div class="link-content">
-                    <div class="link-title">משחק</div>
-                    <div class="link-info">מי אתה יותר - גל או רותם?</div>
-                </div>
-            </a>
+    <div id="screen-quiz" class="screen hidden">
+        <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+        <div class="q-img-wrapper"><img id="q-image" src="" class="q-img" alt=""></div>
+        <h2 id="q-text" style="font-size: 1.2rem; margin-bottom: 25px;"></h2>
+        <div id="options">
+            <button class="btn-outline" id="btn-a"></button>
+            <button class="btn-outline" id="btn-b"></button>
         </div>
+    </div>
 
-        <!-- Schedule photo -->
+    <div id="screen-result" class="screen hidden">
+        <div class="match-label">גילינו שאתם...</div>
+        <div class="match-percent" id="count-up">0%</div>
+        <div class="match-name" id="winner-name"></div>
+        <p id="winner-note" style="margin-top: 20px; color: #777; font-style: italic;"></p>
+        <button class="btn-main" id="save-btn" style="margin-top: 30px;">הוספה לתוצאות האורחים</button>
+    </div>
+
+    <div id="screen-scores" class="screen hidden">
+        <h1 style="font-size: 1.8rem;">תוצאות האורחים 🏆</h1>
+        <div class="score-box">
+            <div class="score-col"><strong>יותר כמו רותם</strong><div id="list-rotem" class="score-list"></div></div>
+            <div class="score-col"><strong>יותר כמו גל</strong><div id="list-gal" class="score-list"></div></div>
+        </div>
+        <button class="btn-outline" id="btn-back" style="margin-top:20px;">חזרה</button>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRTCNBfrckqk4g_hzrlE33KUO1IHgf7KgWaQEZ01WoIdJONrj1wcB1IrI830GhH_yT/exec';
+
+    // --- Active Defense Module (Mini-WAF) ---
+    const MALICIOUS_PAYLOAD_REGEX = /(<([^>]+)>)|(javascript:)|(on\w+\s*=)|(eval\s*\()/i;
+
+    function isMalicious(input) {
+        return typeof input === 'string' && MALICIOUS_PAYLOAD_REGEX.test(input);
+    }
+
+    function bustAttacker() {
+        // מחיקת עקבות זדוניות וזריקת התוקף
+        localStorage.removeItem('wedding_scores');
+        window.location.replace("https://galandrotem.com/busted");
+    }
+    // ----------------------------------------
+
+    const questionsDB = [
+        { text: "הודעות בוואטסאפ:", a: "עונה תוך שנייה", b: "עונה אחרי יומיים", r: "A", g: "B", img: "https://images.unsplash.com/photo-1611746872915-64382b5c76da?w=400" },
+        { text: "סוללה בטלפון:", a: "מטעין ב-80%", b: "חי על ה-1%", r: "B", g: "A", img: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=400" },
+        { text: "אריזה לטיול:", a: "רשימות חודש מראש", b: "דוחס הכל שעה לפני", r: "A", g: "A", img: "https://images.unsplash.com/photo-1553913861-c0fddf2619ee?w=400" },
+        { text: "קפה של בוקר:", a: "נס קפה זריז", b: "טקס הפולים וההקצפה", r: "A", g: "B", img: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400" },
+        { text: "ניווט בחו\"ל:", a: "גוגל מאפס צמוד", b: "איפה שהרגליים ייקחו", r: "A", g: "B", img: "https://images.unsplash.com/photo-1502101872923-d48509bff386?w=400" },
+        { text: "במסיבה:", a: "במרכז הרחבה", b: "בצד עם דרינק", r: "B", g: "A", img: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400" },
+        { text: "סדר יום:", a: "מתקתק משימות", b: "דוחה לרגע האחרון", r: "A", g: "B", img: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=400" },
+        { text: "צילום תמונות:", a: "קליק אחד וזהו", b: "בוק של 50 תמונות", r: "A", g: "B", img: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400" },
+        { text: "אוכל רחוב:", a: "זורם על הכל", b: "בודק ביקורות", r: "A", g: "B", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" },
+        { text: "יציאה מהבית:", a: "בודק את הגז", b: "יוצא ומתפלל", r: "B", g: "A", img: "https://images.unsplash.com/photo-1527030280862-64139fba04ca?w=400" }
+    ];
+
+    let currentQ = [], currentIndex = 0, rScore = 0, gScore = 0, name = "";
+    let cachedData = [];
+    let fetchPromise = null;
+
+    function parseUserData(rawName, rawR, rawG) {
+        let r = Number(rawR);
+        let g = Number(rawG);
         
-    </div>
+        if (isNaN(r) || isNaN(g)) return null;
+        if (r > 0 && r < 1) { r *= 100; g *= 100; }
+        
+        r = Math.max(0, Math.min(100, Math.round(r)));
+        g = Math.max(0, Math.min(100, Math.round(g)));
+        
+        return { name: String(rawName || "").trim().substring(0, 25), rotem: r, gal: g };
+    }
 
-    <footer>
-        <p class="footer-text">&copy; 2026 Applikatzir inc. All rights reserved.</p>
-    </footer>
-
-    <!-- Scroll indicator -->
-    <div class="scroll-indicator" id="scroll-indicator">
-        <div class="scroll-arrow">↓</div>
-    </div>
-
-    <script>
-
-        document.getElementById('paybox-trigger').addEventListener('click', function(e) {
-            // Prevent the click from triggering if they click the actual sub-links
-            if (e.target.closest('.sub-link-item')) return;
-
-            this.classList.toggle('active');
-            
-            // Optional: Scroll slightly to make sure the links are visible
-            if (this.classList.contains('active')) {
-                setTimeout(() => {
-                    this.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }, 300);
-            }
-        });
-
-        // Add touch feedback
-        document.querySelectorAll('.link-card').forEach(card => {
-            card.addEventListener('touchstart', function() {
-                this.style.transform = 'scale(0.98)';
-            });
-            
-            card.addEventListener('touchend', function() {
-                setTimeout(() => {
-                    this.style.transform = 'scale(1)';
-                }, 150);
-            });
-        });
-
-        // Handle Arcade link (you can update this URL)
-        document.getElementById('arcade-link').addEventListener('click', function(e) {
-            // Update this URL to your actual arcade link
-            // For now, it prevents default navigation
-            // e.preventDefault();
-            // alert('Arcade link - Update this URL in the code');
-        });
-
-        // Show/hide scroll indicator based on scroll position
-        function updateScrollIndicator() {
-            const scrollIndicator = document.getElementById('scroll-indicator');
-            const windowHeight = window.innerHeight;
-            const documentHeight = document.documentElement.scrollHeight;
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
-            // Show indicator if user hasn't scrolled near the bottom (within 100px)
-            // Hide if they've seen most of the page
-            const threshold = 100;
-            const isNearBottom = (scrollTop + windowHeight) >= (documentHeight - threshold);
-            
-            if (isNearBottom) {
-                scrollIndicator.classList.add('hidden');
+    // בדיקת חדירה דרך LocalStorage
+    try {
+        const localDataString = localStorage.getItem('wedding_scores');
+        if (localDataString) {
+            // אם מישהו ערך את הזיכרון המקומי והזריק לשם קוד: טריגר ישיר
+            if (isMalicious(localDataString)) {
+                bustAttacker();
             } else {
-                scrollIndicator.classList.remove('hidden');
+                const parsed = JSON.parse(localDataString);
+                if (Array.isArray(parsed)) {
+                    cachedData = parsed.map(u => parseUserData(u.name, u.rotem, u.gal)).filter(Boolean);
+                }
             }
         }
+    } catch(e) { 
+        cachedData = []; 
+        localStorage.removeItem('wedding_scores'); 
+    }
 
-        // Check on scroll and on load
-        window.addEventListener('scroll', updateScrollIndicator);
-        window.addEventListener('resize', updateScrollIndicator);
-        updateScrollIndicator(); // Initial check
-    </script>
+    function syncData() {
+        if (fetchPromise) return fetchPromise;
+
+        fetchPromise = fetch(SCRIPT_URL)
+            .then(res => res.json())
+            .then(data => {
+                if (!Array.isArray(data)) throw new Error("Invalid schema");
+                
+                cachedData = data.map(u => {
+                    // סינון שקט לנתוני שרת (כדי לא לעשות DoS לאורחים במידה והשרת נפרץ)
+                    if (isMalicious(u.name)) return null;
+                    return parseUserData(u.name, u.rotem, u.gal);
+                }).filter(Boolean);
+                
+                localStorage.setItem('wedding_scores', JSON.stringify(cachedData));
+                
+                if (!document.getElementById('screen-scores').classList.contains('hidden')) {
+                    renderScores();
+                }
+                fetchPromise = null;
+                return cachedData;
+            })
+            .catch(e => {
+                fetchPromise = null;
+                return cachedData;
+            });
+
+        return fetchPromise;
+    }
+
+    syncData();
+    setInterval(syncData, 60000);
+
+    function startQuiz() {
+        const rawName = document.getElementById('username').value.trim();
+        
+        if(!rawName) return alert("הכניסו שם כדי להתחיל");
+        
+        // --- Active Defense Trigger ---
+        // אם המשתמש ניסה להזין קוד במקום שם, זורקים אותו לעמוד Busted מיד
+        if (isMalicious(rawName)) {
+            return bustAttacker();
+        }
+
+        name = rawName.substring(0, 25);
+        currentIndex = 0; rScore = 0; gScore = 0;
+        currentQ = [...questionsDB].sort(() => 0.5 - Math.random()).slice(0, 10);
+        
+        document.getElementById('screen-welcome').classList.add('hidden');
+        document.getElementById('screen-quiz').classList.remove('hidden');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const q = currentQ[currentIndex];
+        document.getElementById('progress-fill').style.width = `${(currentIndex / 10) * 100}%`;
+        
+        document.getElementById('q-text').textContent = q.text;
+        document.getElementById('btn-a').textContent = q.a;
+        document.getElementById('btn-b').textContent = q.b;
+        document.getElementById('q-image').src = q.img;
+    }
+
+    function submitAnswer(choice) {
+        const q = currentQ[currentIndex];
+        if(choice === q.r) rScore++;
+        if(choice === q.g) gScore++;
+        currentIndex++;
+        if(currentIndex < 10) loadQuestion();
+        else showFinal();
+    }
+
+    function showFinal() {
+        document.getElementById('screen-quiz').classList.add('hidden');
+        document.getElementById('screen-result').classList.remove('hidden');
+        
+        let rP = Math.round((rScore / (rScore + gScore)) * 100), gP = 100 - rP;
+        const isRotem = rP >= gP;
+        
+        document.getElementById('winner-name').textContent = isRotem ? "רותם" : "גל";
+        document.getElementById('winner-note').textContent = isRotem ? 
+            "כדאי שתתכוננו, רותם כבר מחכה לכם בבר!" : 
+            "גל לגמרי מצאה את החצי השני שלה כאן.";
+            
+        document.getElementById('save-btn').classList.remove('hidden');
+        
+        let count = 0;
+        const target = isRotem ? rP : gP;
+        const timer = setInterval(() => {
+            count++;
+            document.getElementById('count-up').textContent = count + "%";
+            if (count >= target) {
+                clearInterval(timer);
+                if(typeof confetti === 'function') {
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#1B3022', '#C5A059'] });
+                }
+            }
+        }, 20);
+    }
+
+    function saveResult() {
+        let rP = Math.round((rScore / (rScore + gScore)) * 100), gP = 100 - rP;
+        document.getElementById('save-btn').classList.add('hidden');
+        
+        const safeUser = parseUserData(name, rP, gP);
+        if(safeUser) cachedData.push(safeUser);
+        
+        // לא נגעתי! ה-fetch המקורי נשאר כמו שהוא
+        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ name, rotem: rP, gal: gP }) });
+        
+        setTimeout(goToScoreboard, 500);
+    }
+
+    async function goToScoreboard() {
+        document.getElementById('screen-welcome').classList.add('hidden');
+        document.getElementById('screen-result').classList.add('hidden');
+        
+        if (cachedData.length > 0) {
+            document.getElementById('screen-scores').classList.remove('hidden');
+            renderScores();
+            syncData(); 
+        } else {
+            document.getElementById('screen-loading').classList.remove('hidden');
+            await syncData();
+            document.getElementById('screen-loading').classList.add('hidden');
+            document.getElementById('screen-scores').classList.remove('hidden');
+            renderScores();
+        }
+    }
+
+    function renderScores() {
+        const createSafeRow = (u) => {
+            const row = document.createElement('div');
+            row.className = 'score-row';
+            
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = u.name; 
+            
+            const scoreStrong = document.createElement('strong');
+            scoreStrong.textContent = `${u.rotem >= 50 ? u.rotem : u.gal}%`;
+            
+            row.appendChild(nameSpan);
+            row.appendChild(scoreStrong);
+            return row;
+        };
+
+        const listRotem = document.getElementById('list-rotem');
+        const listGal = document.getElementById('list-gal');
+        
+        listRotem.innerHTML = '';
+        listGal.innerHTML = '';
+
+        cachedData.filter(u => u.rotem >= 50)
+            .sort((a,b)=>b.rotem-a.rotem)
+            .forEach(u => listRotem.appendChild(createSafeRow(u)));
+
+        cachedData.filter(u => u.gal > 50)
+            .sort((a,b)=>b.gal-a.gal)
+            .forEach(u => listGal.appendChild(createSafeRow(u)));
+    }
+
+    function backToWelcome() {
+        document.getElementById('screen-scores').classList.add('hidden');
+        document.getElementById('screen-welcome').classList.remove('hidden');
+        document.getElementById('username').value = "";
+    }
+
+    document.getElementById('btn-start').addEventListener('click', startQuiz);
+    document.getElementById('btn-scores').addEventListener('click', goToScoreboard);
+    document.getElementById('btn-a').addEventListener('click', () => submitAnswer('A'));
+    document.getElementById('btn-b').addEventListener('click', () => submitAnswer('B'));
+    document.getElementById('save-btn').addEventListener('click', saveResult);
+    document.getElementById('btn-back').addEventListener('click', backToWelcome);
+
+</script>
 </body>
-
 </html>
-
