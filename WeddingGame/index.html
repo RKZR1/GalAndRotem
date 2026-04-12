@@ -158,16 +158,21 @@
     // ----------------------------------------
 
     const questionsDB = [
-        { text: "הודעות בוואטסאפ:", a: "עונה תוך שנייה", b: "עונה אחרי יומיים", r: "A", g: "B", img: "https://images.unsplash.com/photo-1611746872915-64382b5c76da?w=400" },
-        { text: "סוללה בטלפון:", a: "מטעין ב-80%", b: "חי על ה-1%", r: "B", g: "A", img: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=400" },
-        { text: "אריזה לטיול:", a: "רשימות חודש מראש", b: "דוחס הכל שעה לפני", r: "A", g: "A", img: "https://images.unsplash.com/photo-1553913861-c0fddf2619ee?w=400" },
-        { text: "קפה של בוקר:", a: "נס קפה זריז", b: "טקס הפולים וההקצפה", r: "A", g: "B", img: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400" },
-        { text: "ניווט בחו\"ל:", a: "גוגל מאפס צמוד", b: "איפה שהרגליים ייקחו", r: "A", g: "B", img: "https://images.unsplash.com/photo-1502101872923-d48509bff386?w=400" },
-        { text: "במסיבה:", a: "במרכז הרחבה", b: "בצד עם דרינק", r: "B", g: "A", img: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400" },
-        { text: "סדר יום:", a: "מתקתק משימות", b: "דוחה לרגע האחרון", r: "A", g: "B", img: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=400" },
-        { text: "צילום תמונות:", a: "קליק אחד וזהו", b: "בוק של 50 תמונות", r: "A", g: "B", img: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400" },
-        { text: "אוכל רחוב:", a: "זורם על הכל", b: "בודק ביקורות", r: "A", g: "B", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" },
-        { text: "יציאה מהבית:", a: "בודק את הגז", b: "יוצא ומתפלל", r: "B", g: "A", img: "https://images.unsplash.com/photo-1527030280862-64139fba04ca?w=400" }
+        { text: "אריזה לטיול", a: "מכינים רשימות חודש מראש", b: "דוחסים הכל ערב לפני", r: "B", g: "A", img: "https://images.unsplash.com/photo-1553913861-c0fddf2619ee?w=400" },
+        { text: "קפה של בוקר", a: "נס קפה זריז", b: "טקס הפולים וההקצפה", r: "B", g: "A", img: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400" },
+        { text: "ניווט בחו\"ל", a: "גוגל מאפס צמוד", b: "איפה שהרגליים ייקחו", r: "B", g: "A", img: "https://images.unsplash.com/photo-1502101872923-d48509bff386?w=400" },
+        { text: "צילום תמונות", a: "צילום אחד וזהו", b: "בוק של 50 תמונות", r: "A", g: "B", img: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400" },
+        { text: "כשרואים נטפליקס", a: "בינג עד אמצע הלילה", b: "נרדמים אחרי 10 דקות", r: "A", g: "B", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" },
+        { text: "מתי צריך לשטוף כלים", a: "מיד בסוף האוכל", b: "חייב להשרות קצת במים (עד מחר)", r: "B", g: "A", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" },
+        { text: "שעון מעורר בבוקר", a: "קם בצילצול הראשון", b: "7 נודניקים בהפרשים של 5 דקות", r: "A", g: "B", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" },
+        { text: "במטוס", a: "נרדם כמה שיותר מהר", b: "רואה 3 סרטים ברצף ולא עוצם עין", r: "B", g: "A", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" },
+        { text: "מושב בטיסה", a: "חלון", b: "מעבר", r: "B", g: "A", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" },
+        { text: "במסעדה", a: "יודע מה להזמין עוד לפני שהתיישבנו", b: "קורא את כל התפריט 3 פעמים ומשנה דעה ברגע שהמלצר מגיע", r: "A", g: "B", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" },
+        { text: "שאריות מאתמול", a: "אוכל קר ישר מהמקרר", b: "חייב לחמם בצלחת מסודרת", r: "A", g: "B", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" },
+        { text: "בסרט בקולנוע", a: "מסיים את הפופקורן עוד לפני שנגמרו הפרסומות", b: "שומר לאמצע הסרט", r: "B", g: "A", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" },
+        { text: "מוזיקה באוטו", a: "שר בקול ומזייף בכיף", b: "מהנהן עם הראש בשקט", r: "B", g: "A", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" },
+        { text: "אוכל רחוב", a: "איפה שיש הרבה אנשים", b: "תמיד בודק ביקורות לפני", r: "A", g: "B", img: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400" },
+        { text: "צק ליסט יציאה מהבית", a: "חוזרים 3 פעמים לקחת משהו ששכחנו ביציאה", b: "יוצא ומתפלל שהגז סגור", r: "B", g: "A", img: "https://images.unsplash.com/photo-1527030280862-64139fba04ca?w=400" }
     ];
 
     let currentQ = [], currentIndex = 0, rScore = 0, gScore = 0, name = "";
