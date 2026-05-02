@@ -257,7 +257,8 @@
 
         name = rawName.substring(0, 25);
         currentIndex = 0; rScore = 0; gScore = 0;
-        currentQ = [...questionsDB].sort(() => 0.5 - Math.random()).slice(0, 10);
+        // כאן בוצע השינוי ל-11 שאלות
+        currentQ = [...questionsDB].sort(() => 0.5 - Math.random()).slice(0, 11);
         
         document.getElementById('screen-welcome').classList.add('hidden');
         document.getElementById('screen-quiz').classList.remove('hidden');
@@ -266,7 +267,8 @@
 
     function loadQuestion() {
         const q = currentQ[currentIndex];
-        document.getElementById('progress-fill').style.width = `${(currentIndex / 10) * 100}%`;
+        // כאן הפס מחשב את ההתקדמות באופן דינמי לפי אורך המערך
+        document.getElementById('progress-fill').style.width = `${(currentIndex / currentQ.length) * 100}%`;
         
         document.getElementById('q-text').textContent = q.text;
         document.getElementById('btn-a').textContent = q.a;
@@ -279,7 +281,8 @@
         if(choice === q.r) rScore++;
         if(choice === q.g) gScore++;
         currentIndex++;
-        if(currentIndex < 10) loadQuestion();
+        // כאן המשחק מזהה דינמית מתי לסיים לפי אורך המערך
+        if(currentIndex < currentQ.length) loadQuestion();
         else showFinal();
     }
 
